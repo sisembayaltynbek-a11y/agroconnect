@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/sell.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="sell-form-container">
+    <div class="form-header">
+        <h1><i class="fas fa-plus-circle"></i> Sell Your Product</h1>
+        <p class="form-subtitle">List your farm products to reach more buyers</p>
+    </div>
+    
+    <form method="post" enctype="multipart/form-data" class="sell-form">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="id_name">
+                <i class="fas fa-tag"></i> Product Name
+            </label>
+            {{ form.name }}
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="id_price">
+                    <i class="fas fa-dollar-sign"></i> Price ($)
+                </label>
+                {{ form.price }}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_category">
+                    <i class="fas fa-list"></i> Category
+                </label>
+                {{ form.category }}
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="id_description">
+                <i class="fas fa-align-left"></i> Description
+            </label>
+            {{ form.description }}
+        </div>
+        
+        <div class="form-group">
+            <label for="id_image">
+                <i class="fas fa-image"></i> Product Image
+            </label>
+            {{ form.image }}
+            <p class="help-text">Upload a clear photo of your product</p>
+        </div>
+        
+        <div class="form-actions">
+            <a href="{% url 'products' %}" class="cancel-btn">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+            <button type="submit" class="submit-btn">
+                <i class="fas fa-check-circle"></i> Publish Product
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

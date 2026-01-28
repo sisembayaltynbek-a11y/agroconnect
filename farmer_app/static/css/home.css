@@ -1,0 +1,809 @@
+/* home.css */
+:root {
+    --primary-green: #2e7d32;
+    --light-green: #4caf50;
+    --lighter-green: #a5d6a7;
+    --white: #ffffff;
+    --light-gray: #f5f5f5;
+    --gray: #757575;
+    --dark: #333333;
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, rgba(46, 125, 50, 0.1), rgba(165, 214, 167, 0.05));
+    padding: 5rem 2rem;
+    text-align: center;
+    border-radius: 20px;
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+    background-color: var(--white);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20,50 Q30,30 40,50 Q50,70 60,50 Q70,30 80,50" fill="none" stroke="%232e7d32" stroke-width="0.5" opacity="0.1"/></svg>');
+    background-size: 200px;
+    opacity: 0.3;
+}
+
+.hero-section h1 {
+    font-size: 3rem;
+    color: var(--primary-green);
+    margin-bottom: 1.5rem;
+    font-weight: 800;
+    animation: fadeInUp 0.8s ease-out;
+    position: relative;
+    z-index: 2;
+}
+
+.hero-section h1::after {
+    content: '🍃';
+    font-size: 4rem;
+    display: block;
+    margin-top: 1rem;
+    animation: floatLeaf 3s ease-in-out infinite;
+}
+
+/* Add to your home.css or base.css */
+
+/* AI Chat Section */
+.ai-chat {
+    background-color: white;
+    border-radius: 10px;
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.ai-chat h2 {
+    color: #2e7d32;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ai-chat h2::before {
+    font-size: 1.3rem;
+}
+
+.ai-chat form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+}
+
+.ai-chat input[type="text"] {
+    flex: 1;
+    padding: 0.8rem 1.2rem;
+    border: 2px solid #ddd;
+    border-radius: 25px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    outline: none;
+    background-color: #f8f9fa;
+}
+
+.ai-chat input[type="text"]:focus {
+    border-color: #2e7d32;
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+.ai-chat button[type="submit"] {
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.ai-chat button[type="submit"]:hover {
+    background-color: #1b5e20;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+}
+
+.ai-chat button[type="submit"]:active {
+    transform: translateY(0);
+}
+
+.ai-chat button[type="submit"] i {
+    font-size: 0.9rem;
+}
+
+/* AI Response Area */
+.ai-response {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.5rem;
+    border-left: 4px solid #2e7d32;
+    animation: slideUp 0.3s ease-out;
+}
+
+.ai-response strong {
+    color: #2e7d32;
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+    display: block;
+    font-weight: 600;
+}
+
+.ai-response p {
+    color: #333;
+    line-height: 1.6;
+    font-size: 1rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    margin: 0;
+}
+
+/* Typing animation for AI response */
+.ai-response.typing p::after {
+    content: '|';
+    animation: blink 1s infinite;
+    color: #2e7d32;
+}
+
+/* Chat history if you decide to add it later */
+.chat-history {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+    padding-right: 0.5rem;
+}
+
+.chat-history::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-history::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.chat-history::-webkit-scrollbar-thumb {
+    background: #c8e6c9;
+    border-radius: 10px;
+}
+
+.chat-history::-webkit-scrollbar-thumb:hover {
+    background: #a5d6a7;
+}
+
+.message {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 10px;
+    max-width: 80%;
+}
+
+.user-message {
+    background-color: #e8f5e9;
+    margin-left: auto;
+    border: 1px solid #c8e6c9;
+}
+
+.ai-message {
+    background-color: #f1f8e9;
+    margin-right: auto;
+    border: 1px solid #dcedc8;
+}
+
+/* Status indicators */
+.ai-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 0.5rem;
+}
+
+.ai-status.online {
+    color: #2e7d32;
+}
+
+.ai-status.offline {
+    color: #d32f2f;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-dot.online {
+    background-color: #4caf50;
+    animation: pulse 2s infinite;
+}
+
+.status-dot.offline {
+    background-color: #d32f2f;
+}
+
+/* Animations */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Loading state */
+.ai-chat.loading button[type="submit"] {
+    position: relative;
+    pointer-events: none;
+}
+
+.ai-chat.loading button[type="submit"]::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .ai-chat {
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+    }
+    
+    .ai-chat h2 {
+        font-size: 1.3rem;
+    }
+    
+    .ai-chat form {
+        flex-direction: column;
+    }
+    
+    .ai-chat input[type="text"] {
+        padding: 0.7rem 1rem;
+    }
+    
+    .ai-chat button[type="submit"] {
+        width: 100%;
+        justify-content: center;
+        padding: 0.7rem;
+    }
+    
+    .message {
+        max-width: 90%;
+    }
+}
+
+@media (max-width: 576px) {
+    .ai-chat {
+        padding: 1rem;
+    }
+    
+    .ai-chat h2 {
+        font-size: 1.2rem;
+    }
+    
+    .ai-response {
+        padding: 1rem;
+    }
+    
+    .ai-response strong {
+        font-size: 1rem;
+    }
+}
+
+/* Integration with existing home page layout */
+.ai-chat + h1 {
+    margin-top: 2rem;
+}
+
+/* Add a subtle separator */
+.ai-chat::after {
+    content: '';
+    display: block;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #e0e0e0, transparent);
+    margin-top: 2rem;
+}
+
+.tagline {
+    font-size: 1.3rem;
+    color: var(--gray);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+    position: relative;
+    z-index: 2;
+}
+
+/* Section Headers */
+h1 {
+    color: black;
+    margin: 3rem 0 2rem;
+    font-size: 2rem;
+    text-align: left;
+    position: relative;
+    padding-bottom: 15px;
+    width: 100%;
+}
+
+/* Keep hero section h1 centered */
+.hero-section h1 {
+    text-align: center;
+}
+
+/* Categories */
+.categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+    background-color: var(--white);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+.category {
+    background: var(--white);
+    border-radius: 15px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    text-decoration: none;
+    color: var(--dark);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.category:hover {
+    transform: translateY(-10px);
+    border-color: var(--primary-green);
+    box-shadow: 0 15px 30px rgba(46, 125, 50, 0.15);
+}
+
+.category::before {
+    content: '🍃';
+    position: absolute;
+    top: -30px;
+    left: -30px;
+    font-size: 4rem;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.5s ease;
+    z-index: 1;
+}
+
+.category:hover::before {
+    opacity: 0.2;
+    transform: scale(1) translate(50px, 50px);
+    animation: leafFloat 1s ease-in-out;
+}
+
+.category i {
+    font-size: 3rem;
+    color: var(--primary-green);
+    margin-bottom: 1rem;
+    display: block;
+    transition: transform 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.category:hover i {
+    transform: scale(1.2);
+    animation: leafPulse 0.6s ease;
+}
+
+.category img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    border: 3px solid var(--lighter-green);
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.category:hover img {
+    border-color: var(--primary-green);
+    transform: rotate(5deg);
+}
+
+.image-placeholder {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, var(--lighter-green), var(--light-green));
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+}
+
+.image-placeholder i {
+    color: var(--white);
+    font-size: 3rem;
+}
+
+.category span {
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: block;
+    margin-top: 0.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+/* Popular Products */
+.popular-products {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+    background-color: var(--white);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+.product {
+    background: var(--white);
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    text-decoration: none;
+    color: var(--dark);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.product:hover {
+    transform: translateY(-8px);
+    border-color: var(--primary-green);
+    box-shadow: 0 12px 25px rgba(46, 125, 50, 0.15);
+}
+
+.product::after {
+    content: '→';
+    position: absolute;
+    right: -30px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2rem;
+    color: var(--primary-green);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.product:hover::after {
+    right: 20px;
+    opacity: 1;
+}
+
+.product img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.product:hover img {
+    transform: scale(1.05);
+}
+
+.product span {
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: block;
+    margin-top: 0.5rem;
+}
+
+/* Deliveries */
+.deliveries {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+    background-color: var(--white);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+.delivery-item {
+    background: var(--white);
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.delivery-item:hover {
+    transform: translateY(-8px);
+    border-color: var(--primary-green);
+    box-shadow: 0 12px 25px rgba(46, 125, 50, 0.15);
+}
+
+.delivery-item::before {
+    content: '🚚';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    font-size: 4rem;
+    opacity: 0;
+    transform: rotate(-30deg);
+    transition: all 0.5s ease;
+}
+
+.delivery-item:hover::before {
+    opacity: 0.1;
+    transform: rotate(0deg) translate(-20px, 20px);
+}
+
+.delivery-item img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    border: 3px solid var(--lighter-green);
+    transition: all 0.3s ease;
+}
+
+.delivery-item:hover img {
+    transform: scale(1.1);
+    border-color: var(--primary-green);
+}
+
+.delivery-item span {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--primary-green);
+    display: block;
+    margin: 0.5rem 0;
+}
+
+.delivery-item p {
+    color: var(--gray);
+    margin: 0.5rem 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* Advertisements */
+.advertisements {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 4rem 0;
+}
+
+.advertisements img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.advertisements img:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* About & Questions */
+.about-us, .questions {
+    background: var(--white);
+    padding: 3rem;
+    border-radius: 20px;
+    margin: 2rem 0;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    border-left: 5px solid var(--primary-green);
+    transition: all 0.3s ease;
+}
+
+.about-us:hover, .questions:hover {
+    transform: translateX(10px);
+    box-shadow: 0 10px 30px rgba(46, 125, 50, 0.1);
+}
+
+.about-us h2, .questions h2 {
+    color: var(--primary-green);
+    margin-bottom: 1rem;
+    font-size: 2rem;
+}
+
+.about-us p, .questions p {
+    color: var(--gray);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Empty States */
+.no-categories, .no-products, .no-deliveries {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    color: var(--gray);
+    font-size: 1.1rem;
+    background: var(--light-gray);
+    border-radius: 15px;
+    border: 2px dashed var(--lighter-green);
+}
+
+.no-categories i, .no-products i, .no-deliveries i {
+    font-size: 3rem;
+    color: var(--lighter-green);
+    margin-bottom: 1rem;
+    display: block;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes leafFloat {
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+    50% {
+        transform: translate(20px, -20px) rotate(180deg);
+    }
+    100% {
+        transform: translate(50px, 50px) rotate(360deg);
+    }
+}
+
+@keyframes floatLeaf {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-20px) rotate(10deg);
+    }
+}
+
+@keyframes leafPulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.3);
+    }
+    100% {
+        transform: scale(1.2);
+    }
+}
+
+@keyframes leafEntry {
+    0% {
+        opacity: 0;
+        transform: translate(-50px, -50px) scale(0.5) rotate(-180deg);
+    }
+    70% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1.2) rotate(0deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1) rotate(0deg);
+    }
+}
+
+/* Apply animations to cards */
+.category, .product, .delivery-item {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.category:nth-child(1) { animation-delay: 0.1s; }
+.category:nth-child(2) { animation-delay: 0.2s; }
+.category:nth-child(3) { animation-delay: 0.3s; }
+.category:nth-child(4) { animation-delay: 0.4s; }
+
+.product:nth-child(1) { animation-delay: 0.2s; }
+.product:nth-child(2) { animation-delay: 0.3s; }
+.product:nth-child(3) { animation-delay: 0.4s; }
+.product:nth-child(4) { animation-delay: 0.5s; }
+
+.delivery-item:nth-child(1) { animation-delay: 0.3s; }
+.delivery-item:nth-child(2) { animation-delay: 0.4s; }
+.delivery-item:nth-child(3) { animation-delay: 0.5s; }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-section h1 {
+        font-size: 2.5rem;
+    }
+    
+    .categories,
+    .popular-products,
+    .deliveries {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .category,
+    .product,
+    .delivery-item {
+        padding: 1rem;
+    }
+    
+    .advertisements {
+        grid-template-columns: 1fr;
+    }
+}

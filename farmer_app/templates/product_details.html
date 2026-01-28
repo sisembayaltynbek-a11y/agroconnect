@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/product_details.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="product-detail-container">
+    <div class="product-images">
+        <div class="image-placeholder-large">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% else %}
+                <i class="fas fa-seedling"></i>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="product-info">
+        <h1>{{ product.name }}</h1>
+        
+        <div class="product-meta">
+            <span class="category-tag">
+                <i class="fas fa-tag"></i> {{ product.category.name }}
+            </span>
+        </div>
+        
+        <div class="product-price">${{ product.price|floatformat:2 }}</div>
+        
+        <div class="product-description">
+            <h3>Description</h3>
+            <p>{{ product.description }}</p>
+        </div>
+        
+        <div class="product-actions">
+            <form method="post" action="{% url 'add-to-cart' product.id %}" class="add-to-cart-form">
+                {% csrf_token %}
+                <div class="quantity-selector">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" id="quantity" name="quantity" value="1" min="1" max="100">
+                </div>
+                <button type="submit" class="add-to-cart-btn-large">
+                    <i class="fas fa-cart-plus"></i> Add to Cart
+                </button>
+            </form>
+        </div>
+        
+        <div class="product-specs">
+            <h3>Product Details</h3>
+            <ul>
+                <li><strong>Category:</strong> {{ product.category.name }}</li>
+                <li><strong>Seller:</strong> {{ product.farmer.name }}</li>
+                <li><strong>Phone:</strong> 
+                    <a href="tel:{{ product.farmer.phonenumber }}" class="phone-link">
+                        <i class="fas fa-phone"></i> {{ product.farmer.phonenumber }}
+                    </a>
+                </li>
+                {% if product.farmer.address %}
+                <li><strong>Location:</strong> {{ product.farmer.address }}</li>
+                {% endif %}
+                <li><strong>Added:</strong> {{ product.created_at|date:"F d, Y" }}</li>
+                {% if product.harvest_date %}
+                <li><strong>Harvest Date:</strong> {{ product.harvest_date|date:"F d, Y" }}</li>
+                {% endif %}
+            </ul>
+        </div>
+        <!-- FEEDBACK SECTION -->
+<div class="feedback-container">
+    <h2>Customer Feedback</h2>
+
+    {% if feedbacks %}
+        <div class="feedback-list">
+            {% for feedback in feedbacks %}
+                <div class="feedback-card">
+                    <div class="feedback-header">
+                        <strong>
+                            {{ feedback.farmer.name }}
+                            {{ feedback.farmer.last_name }}
+                        </strong>
+                        <span class="feedback-date">
+                            {{ feedback.created_at|date:"M d, Y" }}
+                        </span>
+                    </div>
+
+                    <div class="feedback-rating">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= feedback.rating %}
+                                <i class="fas fa-star filled"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <p class="feedback-comment">
+                        {{ feedback.comment }}
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="no-feedback">No feedback yet. Be the first to review this product 🌱</p>
+    {% endif %}
+
+    {% if user.is_authenticated and can_give_feedback %}
+        <div class="feedback-form">
+            <h3>Leave a Review</h3>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <label for="rating">Rating</label>
+                <select name="rating" id="rating" required>
+                    <option value="5">★★★★★ (5)</option>
+                    <option value="4">★★★★☆ (4)</option>
+                    <option value="3">★★★☆☆ (3)</option>
+                    <option value="2">★★☆☆☆ (2)</option>
+                    <option value="1">★☆☆☆☆ (1)</option>
+                </select>
+
+                <label for="comment">Comment</label>
+                <textarea name="comment" id="comment" rows="4" required
+                          placeholder="Share your experience..."></textarea>
+
+                <button type="submit" class="submit-feedback-btn">
+                    Send
+                </button>
+            </form>
+        </div>
+    {% elif user.is_authenticated %}
+        <p class="already-reviewed">
+            You already left feedback for this product ✅
+        </p>
+    {% else %}
+        <p class="login-required">
+            <a href="{% url 'account_login' %}">Login</a> to leave feedback
+        </p>
+    {% endif %}
+</div>
+
+    </div>
+</div>
+{% endblock %}

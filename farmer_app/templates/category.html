@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/category.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="category-header">
+    <h1><i class="fas fa-tag"></i> {{ category.name }}</h1>
+    <p class="product-count">{{ products.count }} products available</p>
+</div>
+
+<div class="products">
+    {% for product in products %}
+    <div class="product-card">
+        <a href="{% url 'product-details' product.slug %}">
+            <div class="product-image">
+                <div class="image-placeholder">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <i class="fas fa-seedling"></i>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="product-info">
+                <h3>{{ product.name }}</h3>
+                <p class="product-price">${{ product.price|floatformat:2 }}</p>
+                <p class="product-description">
+                    {{ product.description|truncatewords:10 }}
+                </p>
+            </div>
+        </a>
+    </div>
+    {% empty %}
+    <div class="no-products">
+        <i class="fas fa-box-open"></i>
+        <h3>No products in this category yet</h3>
+        <p>Be the first to add a product!</p>
+        <a href="{% url 'add-product' %}" class="btn">Add Product</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

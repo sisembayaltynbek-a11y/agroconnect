@@ -1,0 +1,86 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AgriConnect - Connect Farmers & Buyers{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <i class="fas fa-seedling"></i> AgriConnect
+            </div>
+
+            <div class="search-bar">
+                <form method="POST" action="{% url 'search' %}">
+                    {% csrf_token %}
+                    <input type="search" placeholder="search" class="search-input" name="searched">
+                    <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+
+            <div class="nav-links">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a>
+                    <a href="{% url 'products' %}"><i class="fas fa-shopping-bag"></i> Products</a>
+                    <a href="{% url 'add-product' %}"><i class="fas fa-plus-circle"></i> Sell</a>
+                    <a href="{% url 'cart' %}"><i class="fas fa-shopping-cart"></i> Cart</a>
+                {% else %}
+                    <a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a>
+                    <a href="{% url 'products' %}"><i class="fas fa-shopping-bag"></i> Products</a>
+                {% endif %}
+
+                {% if user.is_authenticated %}
+                    <a href="{% url 'logout' %}" class="auth-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    <span class="user-greeting"><a href="{% url 'profile' %}">Welcome, {{ user.username }}</a></span>
+                {% else %}
+                    <a href="{% url 'login' %}" class="auth-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                    <a href="{% url 'signup' %}" class="auth-btn signup-btn"><i class="fas fa-user-plus"></i> Sign up</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        {% if messages %}
+        <div class="right-bottom-messages">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3><i class="fas fa-seedling"></i> FarmLink</h3>
+                <p>Connecting farmers directly with buyers</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'products' %}">Products</a>
+                <a href="{% url 'add-product' %}">Sell Products</a>
+            </div>
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <p><i class="fas fa-envelope"></i> agroconnect@gmail.com</p>
+                <p><i class="fas fa-phone"></i> +7 708 240 6575</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 FarmLink. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

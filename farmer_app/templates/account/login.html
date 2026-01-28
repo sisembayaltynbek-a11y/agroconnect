@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'account/login.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="auth-card">
+
+        <!-- LEFT -->
+        <div class="auth-left">
+
+            <h1>Login</h1>
+            <p class="desc">
+                Log in with your data that you entered during your registration
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+
+                <button type="submit" class="primary-btn">Log in</button>
+            </form>
+
+            <p class="switch">
+                Don’t have an account?
+                <a href="{% url 'account_signup' %}">Register</a>
+            </p>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="auth-right">
+            <h2>Nice to see you again</h2>
+            <h1>Welcome back</h1>
+
+            <!-- CSS illustration -->
+            <div class="illustration">
+                <div class="person"></div>
+                <div class="gift"></div>
+                <div class="circle c1"></div>
+                <div class="circle c2"></div>
+                <div class="circle c3"></div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
