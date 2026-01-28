@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/cart.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="cart-container">
+    <div class="cart-header">
+        <h1><i class="fas fa-shopping-cart"></i> Your Shopping Cart</h1>
+        <span class="item-count">{{ cart|length }} items</span>
+    </div>
+    
+    {% if cart %}
+    <div class="cart-items">
+        {% for key, item in cart.items %}
+            <div class="cart-item">
+                <div class="item-image">
+                    <div class="image-placeholder">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                </div>
+                
+                <div class="item-info">
+                    <h3 class="item-name">{{ item.name }}</h3>
+                    <p class="item-price">${{ product.price|floatformat:2 }}</p>
+                    <div class="item-quantity">
+                        <span>Quantity: {{ item.qty }}</span>
+                    </div>
+                    
+                    <div class="item-total">
+                        Total: $<span class="total-amount">{{ item.total }}</span>
+                    </div>
+                </div>
+                <div class="item-actions">
+                    <form method="post" action="{% url 'delete-cart-item' item.id %}">
+                        {% csrf_token %}
+                        <div class="confirmation-buttons">
+                            <button type="submit" class="confirm-btn">⛔</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <div class="cart-summary">
+        <div class="summary-details">
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span>${{ subtotal|default:"0.00" }}</span>
+            </div>
+            <div class="summary-row">
+                <span>Shipping</span>
+                <span>$0.00</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span class="grand-total">${{ total|default:"0.00" }}</span>
+            </div>
+        </div>
+        
+        <div class="cart-actions">
+            <a href="{% url 'products' %}" class="continue-shopping">
+                <i class="fas fa-arrow-left"></i> Continue Shopping
+            </a>
+            <button class="checkout-btn">
+                <i class="fas fa-lock"></i> Proceed to Checkout
+            </button>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-cart">
+        <i class="fas fa-shopping-cart"></i>
+        <h3>Your cart is empty</h3>
+        <p>Add some products to get started!</p>
+        <a href="{% url 'products' %}" class="btn">Browse Products</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

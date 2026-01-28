@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/search_results.css' %}">
+{% endblock %}
+
+{% block title %}Search Results - AgriConnect{% endblock %}
+
+{% block content %}
+    <h1>Search Results for '{{ searched }}'</h1>
+    <div class="search-results">
+        {% if results %}
+            {% for product in results %}
+                <a href="{% url 'product-details' product.slug %}" class="product">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <div class="image-placeholder">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                    {% endif %}
+                    <span>{{ product.name }}</span>
+                </a>
+            {% endfor %}
+            
+        {% else %}
+            <p class="no-results">No products found matching your search.</p>
+        {% endif %}
+    </div>
+{% endblock %}

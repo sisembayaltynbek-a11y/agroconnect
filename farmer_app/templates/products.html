@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/products.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="products-header">
+    <h1>All Products</h1>
+    <p class="subtitle">Browse through our collection of farm-fresh products</p>
+</div>
+
+<div class="products-grid">
+    {% for product in products %}
+    <div class="product-card">
+        <div class="product-img-placeholder">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% else %}
+                <i class="fas fa-seedling"></i>
+            {% endif %}
+        </div>
+        
+        <h3>{{ product.name }}</h3>
+        <p class="product-description">{{ product.excerpt|truncatewords:15 }}</p>
+        
+        <div class="product-footer">
+            <div class="price">${{ product.price|floatformat:2 }}</div>
+            
+            <form method="post" action="{% url 'add-to-cart' product.id %}">
+                {% csrf_token %}
+                <button type="submit" class="add-to-cart-btn">
+                    <i class="fas fa-cart-plus"></i> Add to Cart
+                </button>
+            </form>
+            
+            <a href="{% url 'product-details' product.slug %}" class="view-details">
+                View Details <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="no-products">
+        <i class="fas fa-search"></i>
+        <h3>No products available</h3>
+        <p>Check back later or add your own product!</p>
+        <a href="{% url 'add-product' %}" class="btn">Add Product</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

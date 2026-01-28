@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="hero-section">
+        <h1>
+            Connecting AgroProducts to Families
+        </h1>
+        <p class="tagline">
+            Buy directly from local farmers and support your community. Fresh
+            produce, fair prices, and seamless delivery - bringing the farm to your
+            doorstep.
+        </p>
+    </div>
+
+    <!-- Add this to your home.html, after the hero section -->
+    <div class="ai-chat">
+        <h2><i class="fas fa-robot"></i> AI Assistant</h2>
+        <p style="margin-bottom: 1rem; color: #666; font-size: 0.95rem;">
+            Ask me anything about our products, farming tips, or delivery information!
+        </p>
+        
+        {% if ai_response %}
+            <div class="ai-response">
+                <strong><i class="fas fa-reply"></i> AI Response:</strong>
+                <p>{{ ai_response|linebreaks }}</p>
+                <div class="ai-status online">
+                    <span class="status-dot online"></span>
+                    <span>AI Assistant • Online</span>
+                </div>
+            </div>
+        {% endif %}
+
+        <form method="POST" action=".">
+            {% csrf_token %}
+            <input type="text" name="user_input" 
+                placeholder="Example: What fresh vegetables do you have today?" 
+                value="{{ user_input|default:'' }}"
+                required>
+            <button type="submit">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </form>
+    </div><br><br><br>
+
+    <h1>Purchase By Categories</h1>
+    <div class="categories">
+        {% for category in categories %}
+            <a href="{% url 'category' category.id %}" class="category">
+                {% if category.image %}
+                    <img src="{{ category.image.url }}" alt="{{ category.name }}">
+                {% else %}
+                    <div class="image-placeholder">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                {% endif %}
+                <span>{{ category.name }}</span>
+            </a>
+        {% empty %}
+        <p class="no-categories">No categories available yet.</p>
+        {% endfor %}
+    </div><br>
+
+    <h1>Today best products for you!</h1>
+    <div class="popular-products">
+        {% for product in cheap_products %}
+            <a href="{% url 'product-details' product.slug %}" class="product">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                {% else %}
+                    <div class="image-placeholder">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                {% endif %}
+                <span>{{ product.name }}</span>
+            </a>
+        {% empty %}
+            <i class="fas fa-leaf"></i>
+            <p class="no-products">No products available yet.</p>
+        {% endfor %}
+    </div><br>
+
+    <h1>Staged Deliveries</h1>
+    <div class="deliveries">
+        {% for delivery in deliveries %}
+            <div class="delivery-item"> <!-- Added container for each delivery -->
+                {% if delivery.image %}
+                    <img src="{{ delivery.image.url }}" alt="{{ delivery.fullname }}">
+                {% else %}
+                    <div class="image-placeholder">
+                        <i class="fas fa-truck"></i> <!-- Changed icon to be more delivery-related -->
+                    </div>
+                {% endif %}
+                <span>{{ delivery.fullname }}</span> <!-- Changed from delivery.name to delivery.fullname -->
+                <p>Stage: {{ delivery.working_stage }}</p>
+                <p>{{ delivery.recommendation|truncatewords:10 }}</p>
+            </div>
+        {% empty %}
+            <i class="fas fa-leaf"></i>
+            <p class="no-deliveries">No deliveries available yet.</p>
+        {% endfor %}
+    </div><br>
+
+    <div class="advertisements">
+        <img src="{% static 'farmer_app/images/ad1.jpg' %}" alt="Advertisement 1">
+        <img src="{% static 'farmer_app/images/ad2.jpg' %}" alt="Advertisement 2">
+    </div>
+
+    <div class="about-us">
+        <h2>About Us</h2>
+        <p>We are dedicated to connecting local farmers with families, ensuring fresh produce and supporting community growth.</p>
+    </div>
+{% endblock %}
