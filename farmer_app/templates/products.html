@@ -26,7 +26,7 @@
         <p class="product-description">{{ product.excerpt|truncatewords:15 }}</p>
         
         <div class="product-footer">
-            <div class="price">${{ product.price|floatformat:2 }}</div>
+            <div class="price">₸{{ product.price|floatformat:2 }}</div>
             
             <form method="post" action="{% url 'add-to-cart' product.id %}">
                 {% csrf_token %}

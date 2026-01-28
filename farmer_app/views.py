@@ -24,8 +24,7 @@ class Index(View):
 
     def get(self, request):
         categories = Categories.objects.all()
-        deliveries = Deliveries.objects.all()
-        cheap_products = Products.objects.filter(price__lt=Decimal('10.00'))[:8]
+        cheap_products = Products.objects.filter(price__lt=Decimal('500.00'))[:8]
         popular_products = Products.objects.all().order_by('-id')[:8] 
         staged_deliveries = Deliveries.objects.filter(working_stage__gte=3)
         
@@ -42,7 +41,7 @@ class Index(View):
         ai_response = self.get_response(user_input)
         categories = Categories.objects.all()
         staged_deliveries = Deliveries.objects.filter(working_stage__gte=3)
-        cheap_products = Products.objects.filter(price__lt=Decimal('20.00'))[:8]
+        cheap_products = Products.objects.filter(price__lt=Decimal('500.00'))[:8]
         popular_products = Products.objects.all().order_by('-id')[:8]
         
         return render(request, self.template_name, {

@@ -24,13 +24,13 @@
                 
                 <div class="item-info">
                     <h3 class="item-name">{{ item.name }}</h3>
-                    <p class="item-price">${{ product.price|floatformat:2 }}</p>
+                    <p class="item-price">₸{{ product.price|floatformat:2 }}</p>
                     <div class="item-quantity">
                         <span>Quantity: {{ item.qty }}</span>
                     </div>
                     
                     <div class="item-total">
-                        Total: $<span class="total-amount">{{ item.total }}</span>
+                        Total: ₸<span class="total-amount">{{ item.total }}</span>
                     </div>
                 </div>
                 <div class="item-actions">
@@ -49,15 +49,15 @@
         <div class="summary-details">
             <div class="summary-row">
                 <span>Subtotal</span>
-                <span>${{ subtotal|default:"0.00" }}</span>
+                <span>₸{{ subtotal|default:"0.00" }}</span>
             </div>
             <div class="summary-row">
                 <span>Shipping</span>
-                <span>$0.00</span>
+                <span>₸0.00</span>
             </div>
             <div class="summary-row total">
                 <span>Total</span>
-                <span class="grand-total">${{ total|default:"0.00" }}</span>
+                <span class="grand-total">₸{{ total|default:"0.00" }}</span>
             </div>
         </div>
         
