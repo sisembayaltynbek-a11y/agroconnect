@@ -29,3 +29,14 @@ Users can browse products, sellers can manage listings, and admins can control t
 
 ## 📂 Project Structure
 
+project/
+│── app_name/
+│ ├── models.py
+│ ├── views.py
+│ ├── urls.py
+│ └── templates/
+│── static/
+│── staticfiles/
+│── templates/
+│── manage.py
+└── requirements.txt
