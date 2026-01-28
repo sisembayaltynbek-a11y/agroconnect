@@ -1,0 +1,443 @@
+/* sell.css */
+:root {
+    --primary-green: #2e7d32;
+    --light-green: #4caf50;
+    --lighter-green: #a5d6a7;
+    --white: #ffffff;
+    --light-gray: #f8f9fa;
+    --gray: #757575;
+    --dark: #333333;
+    --success: #4caf50;
+    --warning: #ff9800;
+}
+
+/* Sell Form Container */
+.sell-form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: var(--white);
+    border-radius: 25px;
+    padding: 3rem;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    animation: formReveal 0.8s ease-out;
+}
+
+@keyframes formReveal {
+    from {
+        opacity: 0;
+        transform: translateY(50px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Form Background Animation */
+.sell-form-container::before {
+    content: '🌱🌿🍃';
+    position: absolute;
+    top: -100px;
+    left: -100px;
+    font-size: 20rem;
+    opacity: 0.03;
+    animation: farmLeavesFloat 30s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.sell-form-container::after {
+    content: '🌱🌿🍃';
+    position: absolute;
+    bottom: -100px;
+    right: -100px;
+    font-size: 20rem;
+    opacity: 0.03;
+    animation: farmLeavesFloat 30s linear infinite reverse;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes farmLeavesFloat {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Form Header */
+.form-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+    z-index: 1;
+}
+
+.form-header h1 {
+    color: var(--primary-green);
+    font-size: 2.8rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    animation: headerSlideIn 0.8s ease-out 0.2s both;
+}
+
+@keyframes headerSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-header h1 i {
+    animation: sellIconPulse 2s ease-in-out infinite;
+}
+
+@keyframes sellIconPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+.form-subtitle {
+    color: var(--gray);
+    font-size: 1.2rem;
+    animation: subtitleSlideIn 0.8s ease-out 0.4s both;
+}
+
+@keyframes subtitleSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Sell Form */
+.sell-form {
+    position: relative;
+    z-index: 1;
+}
+
+/* Form Group */
+.form-group {
+    margin-bottom: 2rem;
+    animation: formGroupAppear 0.6s ease-out;
+}
+
+.form-group:nth-child(1) { animation-delay: 0.1s; }
+.form-group:nth-child(2) { animation-delay: 0.2s; }
+.form-group:nth-child(3) { animation-delay: 0.3s; }
+.form-group:nth-child(4) { animation-delay: 0.4s; }
+.form-group:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes formGroupAppear {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+    color: var(--dark);
+    font-size: 1.1rem;
+}
+
+.form-group label i {
+    color: var(--primary-green);
+    font-size: 1.2rem;
+}
+
+/* Form Inputs */
+.sell-form input[type="text"],
+.sell-form input[type="number"],
+.sell-form textarea,
+.sell-form select {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    border: 2px solid var(--lighter-green);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: var(--white);
+    color: var(--dark);
+}
+
+.sell-form input[type="file"] {
+    padding: 0.8rem;
+    background-color: var(--light-gray);
+    border: 2px dashed var(--lighter-green);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.sell-form input[type="file"]:hover {
+    border-color: var(--primary-green);
+    background-color: rgba(46, 125, 50, 0.05);
+}
+
+/* Focus Effects with Leaf Animation */
+.sell-form input:focus,
+.sell-form textarea:focus,
+.sell-form select:focus {
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.15);
+    outline: none;
+    transform: translateY(-2px);
+}
+
+/* Leaf appears on focus */
+.sell-form input:focus,
+.sell-form textarea:focus {
+    position: relative;
+    overflow: hidden;
+}
+
+.sell-form input:focus::before,
+.sell-form textarea:focus::before {
+    content: '🍃';
+    position: absolute;
+    top: 50%;
+    right: -50px;
+    font-size: 2rem;
+    opacity: 0;
+    transform: translateY(-50%);
+    animation: leafSlideIn 0.6s ease-out forwards;
+}
+
+@keyframes leafSlideIn {
+    0% {
+        opacity: 0;
+        right: -50px;
+        transform: translateY(-50%) rotate(-180deg) scale(0.5);
+    }
+    50% {
+        opacity: 0.5;
+        right: 20px;
+        transform: translateY(-50%) rotate(0deg) scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        right: 50px;
+        transform: translateY(-50%) rotate(180deg) scale(1);
+    }
+}
+
+/* Form Row */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+/* Help Text */
+.help-text {
+    color: var(--gray);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 3rem;
+    justify-content: center;
+    animation: actionsAppear 0.8s ease-out 0.6s both;
+}
+
+@keyframes actionsAppear {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.submit-btn,
+.cancel-btn {
+    padding: 1.2rem 3rem;
+    border-radius: 15px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: none;
+}
+
+/* Submit Button */
+.submit-btn {
+    background: linear-gradient(135deg, var(--primary-green), var(--light-green));
+    color: var(--white);
+}
+
+.submit-btn::before {
+    content: '🌱';
+    position: absolute;
+    left: -40px;
+    transition: left 0.3s ease;
+}
+
+.submit-btn:hover::before {
+    left: 15px;
+}
+
+.submit-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(46, 125, 50, 0.3);
+    padding-left: 4rem;
+}
+
+/* Cancel Button */
+.cancel-btn {
+    background: var(--white);
+    color: var(--gray);
+    border: 2px solid var(--gray);
+}
+
+.cancel-btn::before {
+    content: '←';
+    position: absolute;
+    left: -30px;
+    transition: left 0.3s ease;
+}
+
+.cancel-btn:hover::before {
+    left: 15px;
+}
+
+.cancel-btn:hover {
+    background: var(--light-gray);
+    color: var(--dark);
+    transform: translateY(-5px);
+    padding-left: 4rem;
+    border-color: var(--dark);
+}
+
+/* Success Animation */
+.sell-form:valid .submit-btn {
+    animation: successPulse 2s infinite;
+}
+
+@keyframes successPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 20px rgba(76, 175, 80, 0);
+    }
+}
+
+/* Form Validation */
+input:invalid,
+textarea:invalid,
+select:invalid {
+    border-color: var(--warning);
+}
+
+input:valid:focus,
+textarea:valid:focus,
+select:valid:focus {
+    border-color: var(--success);
+}
+
+/* File Upload Animation */
+.sell-form input[type="file"]::file-selector-button {
+    background: linear-gradient(135deg, var(--lighter-green), var(--light-green));
+    color: var(--white);
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 1rem;
+}
+
+.sell-form input[type="file"]::file-selector-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(46, 125, 50, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sell-form-container {
+        padding: 2rem;
+        margin: 1rem;
+    }
+    
+    .form-header h1 {
+        font-size: 2.2rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .submit-btn,
+    .cancel-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .sell-form-container {
+        padding: 1.5rem;
+    }
+    
+    .form-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .form-group label {
+        font-size: 1rem;
+    }
+    
+    .sell-form input[type="text"],
+    .sell-form input[type="number"],
+    .sell-form textarea,
+    .sell-form select {
+        padding: 0.8rem;
+    }
+}
