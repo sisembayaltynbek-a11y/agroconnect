@@ -1,97 +1,237 @@
-<!-- Alternative: templates/profile.html with cards -->
+<!-- templates/profile.html -->
 {% extends 'base.html' %}
 {% load static %}
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/profile.css' %}">
-<div class="container py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <h2>My Profile</h2>
-                <a href="{% url 'add-product' %}" class="btn btn-success">
-                    <i class="fas fa-plus me-2"></i>Add Product
-                </a>
+<div class="profile-container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="header-content">
+            <h1><i class="fas fa-user-circle"></i> My Profile</h1>
+            <p class="welcome-text">Welcome back, {{ farmer.name }}! Manage your products and profile here.</p>
+        </div>
+        <a href="{% url 'add-product' %}" class="add-product-btn">
+            <i class="fas fa-plus-circle"></i> Add New Product
+        </a>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="quick-stats">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #e3f2fd;">
+                <i class="fas fa-box" style="color: #1976d2;"></i>
             </div>
-            <hr>
+            <div class="stat-info">
+                <h3>{{ products.count }}</h3>
+                <p>Total Products</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #f3e5f5;">
+                <i class="fas fa-heart" style="color: #7b1fa2;"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ farmer.liked_products.count }}</h3>
+                <p>Favorites</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #e8f5e8;">
+                <i class="fas fa-seedling" style="color: #2e7d32;"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ farmer.user.date_joined|date:"Y" }}</h3>
+                <p>Member Since</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #fff3e0;">
+                <i class="fas fa-star" style="color: #f57c00;"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ avg_rating|default:"0.0" }}</h3>
+                <p>Avg Rating</p>
+            </div>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Farmer Info -->
-        <div class="col-lg-4">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Farmer Information</h5>
-                    <hr>
-                    <p><strong>Name:</strong> {{ farmer.name }} {{ farmer.last_name }}</p>
-                    <p><strong>Email:</strong> {{ farmer.user.email }}</p>
-                    <p><strong>Phone:</strong> {{ farmer.phonenumber }}</p>
-                    {% if farmer.address %}
-                    <p><strong>Address:</strong> {{ farmer.address }}</p>
-                    {% endif %}
-                    <p><strong>Total Products:</strong> {{ products.count }}</p>
+    <div class="profile-content">
+        <!-- Left Sidebar - Profile Info -->
+        <div class="profile-sidebar">
+            <div class="profile-card">
+                <div class="profile-avatar">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div class="profile-info">
+                    <h3>{{ farmer.name }} {{ farmer.last_name }}</h3>
+                    <p class="profile-email">{{ farmer.user.email }}</p>
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <small>Phone</small>
+                                <p>{{ farmer.phonenumber|default:"Not provided" }}</p>
+                            </div>
+                        </div>
+                        {% if farmer.address %}
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <small>Address</small>
+                                <p>{{ farmer.address }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <button class="edit-profile-btn">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="activity-card">
+                <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <i class="fas fa-box activity-icon"></i>
+                        <div>
+                            <p>Added new product</p>
+                            <small>Today, 10:30 AM</small>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <i class="fas fa-heart activity-icon"></i>
+                        <div>
+                            <p>Added to favorites</p>
+                            <small>Yesterday, 3:45 PM</small>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <i class="fas fa-comment activity-icon"></i>
+                        <div>
+                            <p>Left a review</p>
+                            <small>2 days ago</small>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Products -->
-        <div class="col-lg-8">
+        <!-- Main Content - Products -->
+        <div class="profile-main">
+            <div class="section-header">
+                <h2><i class="fas fa-tractor"></i> My Products</h2>
+                <div class="section-actions">
+                    <button class="filter-btn active">All</button>
+                    <button class="filter-btn">Active</button>
+                    <button class="filter-btn">Recent</button>
+                </div>
+            </div>
+
             {% if products %}
-                <h4 class="mb-3">My Products ({{ products.count }})</h4>
-                
-                <div class="row">
+                <div class="products-grid">
                     {% for product in products %}
-                    <div class="col-md-6 mb-4">
-                        <div class="card h-100">
+                    <div class="product-card">
+                        <div class="product-image">
                             {% if product.image %}
-                            <img src="{{ product.image.url }}" 
-                                 class="card-img-top" 
-                                 alt="{{ product.name }}"
-                                 style="height: 180px; object-fit: cover;">
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                            {% else %}
+                                <div class="no-image">
+                                    <i class="fas fa-seedling"></i>
+                                </div>
+                            {% endif %}
+                            <div class="product-badge">{{ product.category.name }}</div>
+                        </div>
+                        
+                        <div class="product-content">
+                            <div class="product-header">
+                                <h3>{{ product.name }}</h3>
+                                <span class="product-price">₸{{ product.price }}</span>
+                            </div>
+                            
+                            {% if product.excerpt %}
+                            <p class="product-excerpt">{{ product.excerpt }}</p>
                             {% endif %}
                             
-                            <div class="card-body">
-                                <div class="card-text">
-                                    <h5 class="card-title mb-0">{{ product.name }}</h5><br>
-                                    <strong>{{ product.category.name }}</strong>
-                                </div>
-                                
-                                {% if product.excerpt %}
-                                <p class="card-text text-muted small">{{ product.excerpt }}</p>
-                                {% endif %}
-                                
-                                <p class="card-text">
-                                    <strong>Price:</strong> ₸{{ product.price }}
-                                </p>
-                                
-                                {% if product.harvest_date %}
-                                <p class="card-text">
-                                    <strong>Harvest Date:</strong> {{ product.harvest_date|date:"F j, Y" }}
-                                </p>
-                                {% endif %}
-                                
-                                <div class="mt-3">
-                                    <a href="{% url 'product-details' product.slug %}">
-                                        <i class="fas fa-eye me-1"></i>View
-                                    </a>
-                                    <form action="{% url 'delete_product' product.id %}">
-                                        <button type="submit" class="delete-btn">Delete</button>
-                                    </form>
-                                </div>
+                            {% if product.harvest_date %}
+                            <div class="product-meta">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Harvested {{ product.harvest_date|date:"M d, Y" }}</span>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="product-actions">
+                                <a href="{% url 'product-details' product.slug %}" class="view-btn">
+                                    <i class="fas fa-eye"></i> View Details
+                                </a>
+                                <form action="{% url 'delete_product' product.id %}" method="POST" class="delete-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this product?')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
             {% else %}
-                <!-- Empty Products -->
-                <div class="text-center py-5">
-                    <i class="fas fa-seedling fa-4x text-muted mb-3"></i>
-                    <h4>No Products Yet</h4>
-                    <p class="text-muted">You haven't published any products yet.</p>
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <h3>No Products Yet</h3>
+                    <p>You haven't published any products yet. Start by adding your first product!</p>
+                    <a href="{% url 'add-product' %}" class="add-first-btn">
+                        <i class="fas fa-plus"></i> Add Your First Product
+                    </a>
                 </div>
             {% endif %}
+
+            <!-- Favorites Section -->
+            {% if farmer.liked_products.exists %}
+            <div class="section-header" style="margin-top: 3rem;">
+                <h2><i class="fas fa-heart"></i> My Favorites</h2>
+            </div>
+            
+            <div class="favorites-grid">
+                {% for product in farmer.liked_products.all|slice:":4" %}
+                <div class="favorite-card">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <div class="no-image small">
+                            <i class="fas fa-seedling"></i>
+                        </div>
+                    {% endif %}
+                    <div class="favorite-info">
+                        <h4>{{ product.name }}</h4>
+                        <p>₸{{ product.price }}</p>
+                    </div>
+                    <a href="{% url 'product-details' product.slug %}" class="favorite-view">
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal (can be implemented with JavaScript) -->
+<div class="modal-overlay" id="editProfileModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Edit Profile</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Edit profile functionality can be implemented here.</p>
         </div>
     </div>
 </div>

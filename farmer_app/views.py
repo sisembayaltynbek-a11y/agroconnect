@@ -19,7 +19,7 @@ from .forms import AddFarmProduct, FarmerSignUpForm
 from django.views.generic import DeleteView, UpdateView
 
 class Index(View):
-    API_KEY = "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"
+    API_KEY = "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"
     template_name = "home.html"
 
     def get(self, request):
@@ -66,7 +66,7 @@ class Index(View):
                 "X-Title": "<YOUR_SITE_NAME>",
             },
             extra_body={},
-            model="deepseek/deepseek-r1-distill-qwen-32b",
+            model="deepseek/deepseek-r1-0528:free",
             messages=[
                 {
                 "role": "user",
