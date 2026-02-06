@@ -111,7 +111,64 @@
     </div>
 
     <div class="about-us">
-        <h2>About Us</h2>
-        <p>We are dedicated to connecting local farmers with families, ensuring fresh produce and supporting community growth.</p>
+        <div class="about-container">
+            <!-- Map Section -->
+            <div class="map-section">
+                <script
+                    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5gZ5e_XhZS42P61I0hWTvLSNZ9znLNgθ&callback=initMap"
+                    defer>
+                </script>
+                <h2><i class="fas fa-map-marker-alt"></i> Our Service Area</h2>
+                <div class="map-wrapper">
+                    <div id="map"></div>
+                </div>
+                <script>
+                    function initMap() {
+                        const serviceArea = { lat: 43.2081, lng: 76.6697 };
+
+                        const map = new google.maps.Map(document.getElementById("map"), {
+                            zoom: 12,
+                            center: serviceArea,
+                        });
+
+                        new google.maps.Marker({
+                            position: serviceArea,
+                            map: map,
+                            title: "Our Service Area",
+                        });
+                    }
+                </script>
+            </div>
+            
+            <!-- About Content -->
+            <div class="about-content">
+                <h2>About Us</h2>
+                <p>
+Nestled in the fertile lands of Almaty region,
+AgroConnect has been a labor of love for 7 generations. What began as a dream of a one student
+has grown into a thriving agro that serves community and beyond.
+
+We're more than farmers - we're soil stewards, animal caregivers, and community partners. Every decision we make is guided by a simple principle: leave the land better than we found it.
+                </p>
+                
+                <div class="features">
+                    <div class="feature">
+                        <div class="icon"><i class="fas fa-seedling"></i></div>
+                        <h3>Farm Fresh</h3>
+                        <p>Direct from local farms</p>
+                    </div>
+                    <div class="feature">
+                        <div class="icon"><i class="fas fa-hand-holding-usd"></i></div>
+                        <h3>Fair Prices</h3>
+                        <p>Farmers earn more</p>
+                    </div>
+                    <div class="feature">
+                        <div class="icon"><i class="fas fa-bolt"></i></div>
+                        <h3>Fast Delivery</h3>
+                        <p>Under 24 hours</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}

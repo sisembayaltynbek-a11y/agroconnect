@@ -19,7 +19,7 @@ from .forms import AddFarmProduct, FarmerSignUpForm
 from django.views.generic import DeleteView, UpdateView
 
 class Index(View):
-    API_KEY = "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"
+    API_KEY = "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"
     template_name = "home.html"
 
     def get(self, request):
@@ -166,7 +166,6 @@ def products(request):
         'categories': Categories.objects.all()
     })
 
-@login_required
 def product_details(request, slug):
     product = get_object_or_404(Products, slug=slug)
     feedbacks = product.received_feedbacks.select_related('farmer').order_by('-created_at')
@@ -271,7 +270,6 @@ def toggle_like(request, product_id):
 
 
 # ADD THIS FUNCTION-BASED VIEW FOR DELETING CART ITEMS
-@login_required
 def delete_cart_item(request, pk):
     """Delete an item from the cart"""
     cart = request.session.get('cart', {})
@@ -304,7 +302,6 @@ def profile(request):
     except Farmer.DoesNotExist:
         return render(request, 'error.html', {'message': 'Farmer profile not found'})    
 
-@login_required
 def delete_self_published(request, product_id):
     try:
         farmer = Farmer.objects.get(user=request.user)

@@ -28,7 +28,6 @@
                 {% if user.is_authenticated %}
                     <a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a>
                     <a href="{% url 'products' %}"><i class="fas fa-shopping-bag"></i> Products</a>
-                    <a href="{% url 'add-product' %}"><i class="fas fa-plus-circle"></i> Sell</a>
                     <a href="{% url 'cart' %}"><i class="fas fa-shopping-cart"></i> Cart</a>
                 {% else %}
                     <a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a>
@@ -63,7 +62,7 @@
     <footer>
         <div class="footer-content">
             <div class="footer-section">
-                <h3><i class="fas fa-seedling"></i> FarmLink</h3>
+                <h3><i class="fas fa-seedling"></i> AgriConnect</h3>
                 <p>Connecting farmers directly with buyers</p>
             </div>
             <div class="footer-section">
@@ -79,7 +78,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2026 FarmLink. All rights reserved.</p>
+            <p>&copy; 2026 AgriConnect. All rights reserved.</p>
         </div>
     </footer>
 </body>
