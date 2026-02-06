@@ -807,3 +807,248 @@ h1 {
         grid-template-columns: 1fr;
     }
 }
+
+/* ===== About Us Section ===== */
+.about-us {
+    background: linear-gradient(135deg, #f8fdf8, #e8f5e9);
+    padding: 4rem 2rem;
+    border-radius: 25px;
+    margin: 4rem 0;
+}
+
+.about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+}
+
+/* Map Section */
+.map-section {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 15px 30px rgba(46, 125, 50, 0.1);
+    border: 2px solid #e8f5e9;
+}
+
+.map-section h2 {
+    color: #2e7d32;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.map-section h2 i {
+    color: #4caf50;
+}
+
+.map-wrapper {
+    position: relative;
+    height: 400px;
+    border-radius: 15px;
+    overflow: hidden;
+    border: 2px solid #c8e6c9;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+.map-info {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
+    border-radius: 10px;
+    padding: 1rem;
+    border: 1px solid #c8e6c9;
+}
+
+.map-info h3 {
+    color: #2e7d32;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.map-info p {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0.3rem 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.map-info i {
+    color: #4caf50;
+    font-size: 0.9rem;
+}
+
+/* About Content */
+.about-content {
+    padding: 1rem;
+}
+
+.about-content h2 {
+    font-size: 2.2rem;
+    color: #1b5e20;
+    margin-bottom: 1rem;
+}
+
+.highlight {
+    background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+    padding: 1.5rem;
+    border-radius: 15px;
+    font-size: 1.3rem;
+    color: #2e7d32;
+    font-weight: 600;
+    margin: 1.5rem 0;
+    text-align: center;
+    border-left: 4px solid #4caf50;
+}
+
+.highlight i:first-child {
+    color: #4caf50;
+    margin-right: 10px;
+}
+
+.highlight i:last-child {
+    color: #4caf50;
+    margin-left: 10px;
+}
+
+.about-content p {
+    color: #555;
+    line-height: 1.7;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+/* Features */
+.features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.feature {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    background: white;
+    border-radius: 12px;
+    border: 2px solid #e8f5e9;
+    transition: all 0.3s ease;
+}
+
+.feature:hover {
+    transform: translateY(-5px);
+    border-color: #4caf50;
+    box-shadow: 0 10px 20px rgba(76, 175, 80, 0.15);
+}
+
+.feature .icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #2e7d32, #4caf50);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: white;
+    font-size: 1.3rem;
+}
+
+.feature h3 {
+    color: #2e7d32;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.feature p {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* CTA Button */
+.cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #2e7d32, #4caf50);
+    color: white;
+    padding: 0.9rem 2rem;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.cta-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(46, 125, 50, 0.3);
+}
+
+.cta-btn i {
+    transition: transform 0.3s ease;
+}
+
+.cta-btn:hover i {
+    transform: translateX(5px);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .about-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .map-wrapper {
+        height: 350px;
+    }
+}
+
+@media (max-width: 576px) {
+    .about-us {
+        padding: 2rem 1rem;
+    }
+    
+    .map-section {
+        padding: 1.5rem;
+    }
+    
+    .features {
+        grid-template-columns: 1fr;
+    }
+    
+    .feature {
+        padding: 1rem;
+    }
+    
+    .about-content h2 {
+        font-size: 1.8rem;
+    }
+    
+    .highlight {
+        font-size: 1.1rem;
+        padding: 1rem;
+    }
+}
