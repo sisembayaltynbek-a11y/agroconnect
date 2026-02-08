@@ -17,7 +17,11 @@ class AddFarmProduct(forms.ModelForm):
             'min': '0.01', 
             'placeholder': '0.00'
         })
-
+        super().__init__(*args, **kwargs)
+        self.fields['harvest_date'].widget.attrs.update({
+            'placeholder': 'YYYY-MM-DD'
+        })
+        
 class FarmerSignUpForm(forms.Form):
     username = forms.CharField(max_length=150)
     email = forms.EmailField()

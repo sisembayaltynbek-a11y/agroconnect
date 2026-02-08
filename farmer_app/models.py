@@ -52,7 +52,7 @@ class Products(models.Model):
     )
     excerpt = models.CharField(max_length=200, null=True, blank=True)
     description = models.TextField()
-    harvest_date = models.DateField(null=True, blank=True)
+    harvest_date = models.DateField()
     category = models.ForeignKey(Categories, on_delete=models.CASCADE)
 
     def __str__(self):

@@ -19,7 +19,7 @@ from .forms import AddFarmProduct, FarmerSignUpForm
 from django.views.generic import DeleteView, UpdateView
 
 class Index(View):
-    API_KEY = "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"
+    API_KEY = "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"
     template_name = "home.html"
 
     def get(self, request):
@@ -66,16 +66,17 @@ class Index(View):
                 "X-Title": "<YOUR_SITE_NAME>",
             },
             extra_body={},
-            model="deepseek/deepseek-r1-0528:free",
+            model="deepseek/deepseek-r1-distill-qwen-32b",
             messages=[
                 {
                 "role": "user",
-                "content": f"I have a farm website and a user please this is the question of my websites user: {user_input}"
+                "content": f"We are in Kazakhstan, I have a farm website and a user please this is the question of my websites user: {user_input}"
                 }
                 ]
             )
             print(completion.choices[0].message.content)
-        except:
+        except Exception as e:
+            print(f"Error getting AI response: {e}")
             return "try again!"
                 
         print(completion.choices[0].message.content)
