@@ -23,23 +23,27 @@
                     <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
                 </form>
             </div>
-
             <div class="nav-links">
-                {% if user.is_authenticated %}
-                    <a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a>
-                    <a href="{% url 'products' %}"><i class="fas fa-shopping-bag"></i> Products</a>
-                    <a href="{% url 'cart' %}"><i class="fas fa-shopping-cart"></i> Cart</a>
-                {% else %}
-                    <a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a>
-                    <a href="{% url 'products' %}"><i class="fas fa-shopping-bag"></i> Products</a>
-                {% endif %}
+                <a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a>
+                <a href="{% url 'products' %}"><i class="fas fa-shopping-bag"></i> Products</a>
 
                 {% if user.is_authenticated %}
-                    <a href="{% url 'logout' %}" class="auth-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                    <span class="user-greeting"><a href="{% url 'profile' %}">Welcome, {{ user.username }}</a></span>
+                    <a href="{% url 'cart' %}"><i class="fas fa-shopping-cart"></i> Cart</a>
+                    <a href="{% url 'logout' %}" class="auth-btn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                    {% if not user.socialaccount_set.exists %}
+                        <a href="{% url 'profile' %}">
+                            Welcome, {{ user.username }}
+                        </a>
+                    {% endif %}
                 {% else %}
-                    <a href="{% url 'login' %}" class="auth-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
-                    <a href="{% url 'signup' %}" class="auth-btn signup-btn"><i class="fas fa-user-plus"></i> Sign up</a>
+                    <a href="{% url 'login' %}" class="auth-btn">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                    <a href="{% url 'signup' %}" class="auth-btn signup-btn">
+                        <i class="fas fa-user-plus"></i> Sign up
+                    </a>
                 {% endif %}
             </div>
         </nav>
