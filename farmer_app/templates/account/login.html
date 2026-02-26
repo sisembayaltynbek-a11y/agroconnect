@@ -1,5 +1,5 @@
-{% extends "base.html" %}
 {% load static %}
+{% load socialaccount %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'account/login.css' %}">
@@ -7,6 +7,9 @@
 
 {% block content %}
     <div class="auth-card">
+        <div class="auth-right">
+            <img src="{% static 'images/plants.jpg' %}" alt="Plants-Image">
+        </div>
 
         <!-- LEFT -->
         <div class="auth-left">
@@ -18,7 +21,9 @@
 
             <form method="post">
                 {% csrf_token %}
+                
                 {{ form.as_p }}
+
 
                 <button type="submit" class="primary-btn">Log in</button>
             </form>
@@ -27,21 +32,17 @@
                 Don’t have an account?
                 <a href="{% url 'account_signup' %}">Register</a>
             </p>
-        </div>
 
-        <!-- RIGHT -->
-        <div class="auth-right">
-            <h2>Nice to see you again</h2>
-            <h1>Welcome back</h1>
+            <a href="{% provider_login_url 'google' %}" class="google-btn">
+                <svg width="18" height="18" viewBox="0 0 48 48">
+                    <path fill="#EA4335" d="M24 9.5c3.4 0 6.5 1.2 8.9 3.2l6.6-6.6C35.6 2.4 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.3l7.7 6C12.3 13.2 17.7 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-2.7-.4-3.9H24v7.4h12.5c-.3 2-1.9 5-5.5 7.1l8.5 6.6C44.3 37.5 46.1 31.6 46.1 24.5z"/>
+                    <path fill="#FBBC05" d="M10.3 28.3c-.6-1.8-.9-3.7-.9-5.6s.3-3.8.9-5.6l-7.7-6C.9 15.3 0 19.6 0 24s.9 8.7 2.6 12.9l7.7-6.6z"/>
+                    <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.7l-8.5-6.6c-2.3 1.6-5.3 2.7-7.4 2.7-6.3 0-11.7-3.7-13.7-9.8l-7.7 6C6.5 42.6 14.6 48 24 48z"/>
+                </svg>
 
-            <!-- CSS illustration -->
-            <div class="illustration">
-                <div class="person"></div>
-                <div class="gift"></div>
-                <div class="circle c1"></div>
-                <div class="circle c2"></div>
-                <div class="circle c3"></div>
-            </div>
+                <span>Continue with Google</span>
+            </a>
         </div>
 
     </div>
