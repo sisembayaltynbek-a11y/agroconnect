@@ -26,4 +26,5 @@ urlpatterns = [
 
     path('profile/', views.profile, name='profile'),
     path('product/delete/<int:product_id>/', views.delete_self_published, name='delete_product'),
+    path('posts/update/<int:pk>/', views.UpdatePost.as_view(), name="update-page")
 ]

@@ -321,3 +321,9 @@ def delete_self_published(request, product_id):
         messages.error(request, "Product not found!")
     
     return redirect('profile') 
+
+class UpdatePost(UpdateView):
+    model = Products
+    fields = '__all__'
+    template_name = 'update.html'
+    success_url = reverse_lazy('products')

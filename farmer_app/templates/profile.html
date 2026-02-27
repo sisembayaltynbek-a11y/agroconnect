@@ -1,4 +1,4 @@
-<!-- templates/profile.html -->
+templates/profile.html
 {% extends 'base.html' %}
 {% load static %}
 
@@ -60,38 +60,68 @@
         <!-- Left Sidebar - Profile Info -->
         <div class="profile-sidebar">
             <div class="profile-card">
+
                 <div class="profile-avatar">
-                    <i class="fas fa-user-tie"></i>
-                </div>
-                <div class="profile-info">
-                    <h3>{{ farmer.name }} {{ farmer.last_name }}</h3>
-                    <p class="profile-email">{{ farmer.user.email }}</p>
-                    
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <i class="fas fa-phone"></i>
-                            <div>
-                                <small>Phone</small>
-                                <p>{{ farmer.phonenumber|default:"Not provided" }}</p>
-                            </div>
-                        </div>
-                        {% if farmer.address %}
-                        <div class="info-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <div>
-                                <small>Address</small>
-                                <p>{{ farmer.address }}</p>
-                            </div>
-                        </div>
+                    {% with user.socialaccount_set.first as social %}
+                        {% if social and social.provider == "google" %}
+                            <img src="{{ social.extra_data.picture }}"
+                                style="width:100px;height:100px;border-radius:50%;object-fit:cover;">
+                        {% else %}
+                            <i class="fas fa-user-tie"></i>
                         {% endif %}
+                    {% endwith %}
+                </div>
+
+                <div class="profile-info">
+
+                    {% with user.socialaccount_set.first as social %}
+                        {% if social and social.provider == "google" %}
+
+                            <h3>{{ social.extra_data.name }}</h3>
+                            <p class="profile-email">{{ social.extra_data.email }}</p>
+
+                        {% else %}
+
+                            <h3>{{ farmer.name }} {{ farmer.last_name }}</h3>
+                            <p class="profile-email">{{ farmer.user.email }}</p>
+
+                        {% endif %}
+                    {% endwith %}
+
+                    <div class="info-grid">
+
+                        {% with user.socialaccount_set.first as social %}
+                            {% if not social %}
+
+                                <div class="info-item">
+                                    <i class="fas fa-phone"></i>
+                                    <div>
+                                        <small>Phone</small>
+                                        <p>{{ farmer.phonenumber|default:"Not provided" }}</p>
+                                    </div>
+                                </div>
+
+                                {% if farmer.address %}
+                                <div class="info-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <div>
+                                        <small>Address</small>
+                                        <p>{{ farmer.address }}</p>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                            {% endif %}
+                        {% endwith %}
+
                     </div>
-                    
+
                     <button class="edit-profile-btn">
                         <i class="fas fa-edit"></i> Edit Profile
                     </button>
+
                 </div>
             </div>
-
             <!-- Recent Activity -->
             <div class="activity-card">
                 <h3><i class="fas fa-history"></i> Recent Activity</h3>
@@ -174,6 +204,9 @@
                                         <i class="fas fa-trash"></i> Delete
                                     </button>
                                 </form>
+                                <a href="{% url 'update-page' product.id %}" class="edit-btn">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
                             </div>
                         </div>
                     </div>
