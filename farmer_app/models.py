@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.core.validators import MinValueValidator
 from decimal import Decimal
 from django.conf import settings
@@ -52,7 +53,7 @@ class Products(models.Model):
     )
     excerpt = models.CharField(max_length=200, null=True, blank=True)
     description = models.TextField()
-    harvest_date = models.DateField()
+    harvest_date = models.DateField(default=timezone.now())
     category = models.ForeignKey(Categories, on_delete=models.CASCADE)
 
     def __str__(self):

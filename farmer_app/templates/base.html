@@ -32,11 +32,9 @@
                     <a href="{% url 'logout' %}" class="auth-btn">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
-                    {% if not user.socialaccount_set.exists %}
-                        <a href="{% url 'profile' %}">
-                            Welcome, {{ user.username }}
-                        </a>
-                    {% endif %}
+                    <a href="{% url 'profile' %}">
+                        Welcome, {{ user.username }}
+                    </a>
                 {% else %}
                     <a href="{% url 'login' %}" class="auth-btn">
                         <i class="fas fa-sign-in-alt"></i> Login
