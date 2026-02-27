@@ -27,6 +27,7 @@ class FarmerSignUpForm(forms.Form):
     email = forms.EmailField()
     password1 = forms.CharField(widget=forms.PasswordInput, label="Password")
     password2 = forms.CharField(widget=forms.PasswordInput, label="Confirm Password")
+    avatar = forms.ImageField(required=False)
     name = forms.CharField(max_length=100, label="Full Name")
     phonenumber = forms.CharField(max_length=15, required=False, label="Phone Number")
     address = forms.CharField(required=False)

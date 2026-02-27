@@ -45,7 +45,27 @@ nav {
 .logo i {
     font-size: 2rem;
 }
+.profile-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;            /* space between icon and text */
+    padding: 6px 12px;
+    text-decoration: none;
+    background: #16a34a; /* green button style */
+    color: #fff;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: 0.2s ease;
+}
 
+.profile-link:hover {
+    background: #15803d;
+}
+
+.profile-icon {
+    font-size: 16px; /* slightly bigger for the icon */
+}
 /* Navigation Links */
 .nav-links {
     display: flex;
@@ -108,7 +128,7 @@ nav {
 }
 
 .signup-btn {
-    background-color: #1b5e20;
+    background-color: #2e7d32;
 }
 
 .user-greeting {

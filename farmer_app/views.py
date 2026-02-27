@@ -136,6 +136,7 @@ class FarmerSignUpView(FormView):
         # Create farmer profile
         Farmer.objects.create(
             user=user,
+            avatar=form.cleaned_data['avatar'],
             name=form.cleaned_data['name'],
             phonenumber=form.cleaned_data['phonenumber'],
             address=form.cleaned_data.get('address', '')
@@ -327,3 +328,9 @@ class UpdatePost(UpdateView):
     fields = '__all__'
     template_name = 'update.html'
     success_url = reverse_lazy('products')
+
+class UpdateUser(UpdateView):
+    model = Farmer
+    fields = ['avatar', 'phonenumber', 'address']
+    template_name = 'update.html'
+    success_url = reverse_lazy('profile')    
