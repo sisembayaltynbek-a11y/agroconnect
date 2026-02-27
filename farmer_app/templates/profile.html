@@ -67,7 +67,14 @@ templates/profile.html
                             <img src="{{ social.extra_data.picture }}"
                                 style="width:100px;height:100px;border-radius:50%;object-fit:cover;">
                         {% else %}
-                            <i class="fas fa-user-tie"></i>
+                            {% if farmer.avatar %}
+                                <img src="{{ farmer.avatar.url }}"
+                                    style="width:100px;height:100px;border-radius:50%;object-fit:cover;">
+                            {% else %}
+                                <div class="no-avatar">
+                                    <i class="fas fa-user-tie"></i>
+                                </div>
+                            {% endif %}
                         {% endif %}
                     {% endwith %}
                 </div>
@@ -115,11 +122,13 @@ templates/profile.html
                         {% endwith %}
 
                     </div>
-
-                    <button class="edit-profile-btn">
+                    <br><br>
+                    <a class="edit-profile-btn" href="{% url 'update-page-user' farmer.id %}">
                         <i class="fas fa-edit"></i> Edit Profile
-                    </button>
-
+                    </a><br>
+                    <a href="{% url 'logout' %}" class="edit-profile-btn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
                 </div>
             </div>
             <!-- Recent Activity -->

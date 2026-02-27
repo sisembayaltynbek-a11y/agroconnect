@@ -1,0 +1,95 @@
+/* update.css - Minimalistic styling for Update Product/Profile pages */
+
+/* General section styling */
+#update-product, #update-profile {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 25px 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header */
+#update-product header,
+#update-profile header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+#update-product h2,
+#update-profile h2 {
+    font-size: 28px;
+    margin-bottom: 5px;
+    color: #333333;
+}
+
+#update-product p,
+#update-profile p {
+    font-size: 14px;
+    color: #666666;
+}
+
+/* Form styling */
+.update-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Input fields and textarea */
+.update-form input[type="text"],
+.update-form input[type="email"],
+.update-form input[type="number"],
+.update-form input[type="password"],
+.update-form input[type="file"],
+.update-form textarea,
+.update-form select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cccccc;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #333;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.update-form input:focus,
+.update-form textarea:focus,
+.update-form select:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+}
+
+/* Buttons */
+.btn-save {
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-save:hover {
+    background-color: #45a049;
+}
+
+/* Paragraphs inside form (errors/messages) */
+.update-form p {
+    font-size: 13px;
+    color: #d93025; /* Red for errors */
+}
+
+/* Responsive */
+@media (max-width: 650px) {
+    #update-product, #update-profile {
+        padding: 20px 15px;
+        margin: 20px;
+    }
+}

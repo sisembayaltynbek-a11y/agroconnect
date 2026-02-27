@@ -27,6 +27,7 @@ class Farmer(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE
     )
+    avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
     name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50, blank=True)
     phonenumber = models.CharField(max_length=15)
