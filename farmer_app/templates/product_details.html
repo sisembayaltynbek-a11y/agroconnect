@@ -18,6 +18,20 @@
     </div>
     
     <div class="product-info">
+        {% if user.is_authenticated and product.farmer.user != user %}
+            <form method="post" action="{% url 'toggle-like' product.id %}" class="like-form">
+                {% csrf_token %}
+                <button type="submit" class="like-btn">
+
+                    <i class="{% if is_liked %}fas{% else %}far{% endif %} fa-heart"></i>
+
+                    <span class="likes-count">
+                        {{ likes_count }}
+                    </span>
+
+                </button>
+            </form>
+        {% endif %}
         <h1>{{ product.name }}</h1>
         
         <div class="product-meta">
@@ -129,9 +143,15 @@
             </form>
         </div>
     {% elif user.is_authenticated %}
-        <p class="already-reviewed">
-            You already left feedback for this product ✅
-        </p>
+        {% if product.farmer.user == user %}
+            <p class="already-reviewed">
+                You cannot leave feedback on your own product.
+            </p>
+        {% else %}
+            <p class="already-reviewed">
+                You already left feedback for this product ✅
+            </p>
+        {% endif %}
     {% else %}
         <p class="login-required">
             <a href="{% url 'account_login' %}">Login</a> to leave feedback

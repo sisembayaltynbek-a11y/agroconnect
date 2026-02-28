@@ -1,4 +1,5 @@
 from decimal import Decimal
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -173,34 +174,44 @@ def product_details(request, slug):
     feedbacks = product.received_feedbacks.select_related('farmer').order_by('-created_at')
 
     can_give_feedback = False
+    is_liked = False
+    likes_count = product.liked_by.count()
+    farmer = None
 
     if request.user.is_authenticated:
-        try:
+        farmer = Farmer.objects.filter(user=request.user).first()
+
+        if farmer:
             farmer = request.user.farmer
-            can_give_feedback = not Feedback.objects.filter(
-                farmer=farmer,
-                product=product
-            ).exists()
-        except Farmer.DoesNotExist:
-            farmer = None
+            is_liked = farmer.liked_products.filter(id=product.id).exists()
+            if farmer != product.farmer:
+                already_reviewed = Feedback.objects.filter(
+                    farmer=farmer,
+                    product=product
+                ).exists()
 
-        if request.method == "POST" and can_give_feedback:
-            rating = int(request.POST.get("rating"))
-            comment = request.POST.get("comment")
+                can_give_feedback = not already_reviewed
 
-            Feedback.objects.create(
-                farmer=farmer,
-                product=product,
-                rating=rating,
-                comment=comment
-            )
-            messages.success(request, "Thank you for your feedback!")
-            return redirect("product-details", slug=product.slug)
+                if request.method == "POST" and can_give_feedback:
+                    rating = int(request.POST.get("rating"))
+                    comment = request.POST.get("comment")
+
+                    Feedback.objects.create(
+                        farmer=farmer,
+                        product=product,
+                        rating=rating,
+                        comment=comment
+                    )
+
+                    messages.success(request, "Thank you for your feedback!")
+                    return redirect("product-details", slug=product.slug)
 
     return render(request, "product_details.html", {
         "product": product,
         "feedbacks": feedbacks,
         "can_give_feedback": can_give_feedback,
+        "is_liked": is_liked,
+        "likes_count": likes_count,
     })
 
 
@@ -263,13 +274,12 @@ def toggle_like(request, product_id):
     product = get_object_or_404(Products, id=product_id)
     farmer = request.user.farmer
 
-    if product in farmer.liked_products.all():
+    if farmer.liked_products.filter(id=product.id).exists():
         farmer.liked_products.remove(product)
     else:
         farmer.liked_products.add(product)
 
     return redirect(request.META.get('HTTP_REFERER', 'products'))
-
 
 # ADD THIS FUNCTION-BASED VIEW FOR DELETING CART ITEMS
 def delete_cart_item(request, pk):
@@ -288,21 +298,40 @@ def delete_cart_item(request, pk):
     
     return redirect('cart')
 
+# @login_required
+# def profile(request):
+#     try:
+#         farmer = Farmer.objects.get(user=request.user)
+#         products = Products.objects.filter(farmer=farmer)
+
+#         context = {
+#             'farmer': farmer,
+#             'products': products,
+#         }
+        
+#         return render(request, 'profile.html', context)
+    
+#     except Farmer.DoesNotExist:
+#         return render(request, 'error.html', {'message': 'Farmer profile not found'})    
+
 @login_required
 def profile(request):
-    try:
-        farmer = Farmer.objects.get(user=request.user)
-        products = Products.objects.filter(farmer=farmer)
-
-        context = {
-            'farmer': farmer,
-            'products': products,
+    farmer, created = Farmer.objects.get_or_create(
+        user=request.user,
+        defaults={
+            'name': request.user.username,
+            'phonenumber': 'Not provided'
         }
-        
-        return render(request, 'profile.html', context)
-    
-    except Farmer.DoesNotExist:
-        return render(request, 'error.html', {'message': 'Farmer profile not found'})    
+    )
+
+    products = Products.objects.filter(farmer=farmer)
+
+    context = {
+        'farmer': farmer,
+        'products': products,
+    }
+
+    return render(request, 'profile.html', context)
 
 def delete_self_published(request, product_id):
     try:
