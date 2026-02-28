@@ -18,6 +18,7 @@ from .models import Deliveries, Products, Categories, Farmer, Feedback
 from .forms import AddFarmProduct, FarmerSignUpForm
 
 from django.views.generic import DeleteView, UpdateView
+from django.db.models import Avg
 
 class Index(View):
     API_KEY = "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"
@@ -25,7 +26,7 @@ class Index(View):
 
     def get(self, request):
         categories = Categories.objects.all()
-        cheap_products = Products.objects.filter(price__lt=Decimal('500.00'))[:8]
+        cheap_products = Products.objects.filter(price__lt=Decimal('700.00'))[:8]
         popular_products = Products.objects.all().order_by('-id')[:8] 
         staged_deliveries = Deliveries.objects.filter(working_stage__gte=3)
         
@@ -318,17 +319,21 @@ def delete_cart_item(request, pk):
 def profile(request):
     farmer, created = Farmer.objects.get_or_create(
         user=request.user,
-        defaults={
-            'name': request.user.username,
-            'phonenumber': 'Not provided'
-        }
+        defaults={'name': request.user.username, 'phonenumber': 'Not provided'}
     )
 
     products = Products.objects.filter(farmer=farmer)
 
+    average_rate = Feedback.objects.filter(
+        product__in=products
+    ).aggregate(avg=Avg('rating'))['avg']
+
+    average_rate = round(average_rate or 0, 2)
+
     context = {
         'farmer': farmer,
         'products': products,
+        'average_rate': average_rate,
     }
 
     return render(request, 'profile.html', context)

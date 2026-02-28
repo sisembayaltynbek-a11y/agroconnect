@@ -698,38 +698,47 @@
     }
 }
 
+/* Container form */
 .like-form {
-    margin-top: 15px;
+    display: inline-flex;       /* Keep icon and count side by side */
+    align-items: center;        /* Vertical center */
+    background: none;           /* No background */
+    border: none;               /* No border */
+    padding: 0;                 /* Remove padding */
+    margin: 0;                  /* Remove margin */
+    cursor: pointer;            /* Pointer cursor */
 }
 
+/* Button itself */
 .like-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: none;
     border: none;
+    outline: none;
+    padding: 0;
+    font-size: 24px;            /* Size of heart icon */
+    color: #ff2d55;             /* TikTok-like pink/red heart */
     cursor: pointer;
-    font-size: 22px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #e63946;
-    transition: 0.2s ease;
+    position: relative;
 }
 
-.like-btn:hover {
-    transform: scale(1.1);
+/* Heart icon */
+.like-btn i {
+    transition: transform 0.2s ease, color 0.2s ease;
 }
 
-/* Animate only when liked */
-.fas.fa-heart {
-    animation: heartPop 0.3s ease;
+/* Scale on hover (like TikTok pop) */
+.like-btn:hover i {
+    transform: scale(1.3);
+    color: #ff476f;
 }
 
-@keyframes heartPop {
-    0%   { transform: scale(1); }
-    50%  { transform: scale(1.35); }
-    100% { transform: scale(1); }
-}
-
+/* Likes count next to heart */
 .likes-count {
     font-size: 16px;
-    font-weight: 600;
+    margin-left: 6px;           /* Small space between heart and count */
+    color: #111;                /* Dark text for count */
+    font-weight: 500;
 }
