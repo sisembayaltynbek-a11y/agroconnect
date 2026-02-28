@@ -698,47 +698,75 @@
     }
 }
 
-/* Container form */
 .like-form {
-    display: inline-flex;       /* Keep icon and count side by side */
-    align-items: center;        /* Vertical center */
-    background: none;           /* No background */
-    border: none;               /* No border */
-    padding: 0;                 /* Remove padding */
-    margin: 0;                  /* Remove margin */
-    cursor: pointer;            /* Pointer cursor */
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-/* Button itself */
+/* Base button */
 .like-btn {
-    display: inline-flex;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-size: 20px;
+    color: #9ca3af;
+    cursor: pointer;
+    display: flex;
     align-items: center;
     justify-content: center;
-    background: none;
-    border: none;
-    outline: none;
-    padding: 0;
-    font-size: 24px;            /* Size of heart icon */
-    color: #ff2d55;             /* TikTok-like pink/red heart */
-    cursor: pointer;
-    position: relative;
+    transition: transform 0.2s ease, 
+                color 0.2s ease,
+                background 0.2s ease;
 }
 
-/* Heart icon */
-.like-btn i {
-    transition: transform 0.2s ease, color 0.2s ease;
+/* Hover (not liked) */
+.like-btn:hover {
+    transform: scale(1.2);
+    color: #ef4444;
 }
 
-/* Scale on hover (like TikTok pop) */
-.like-btn:hover i {
-    transform: scale(1.3);
-    color: #ff476f;
+/* ===== Liked State ===== */
+.like-btn.liked {
+    background: #ef4444;
+    color: white;
+    transform: scale(1.05);
 }
 
-/* Likes count next to heart */
+/* Smooth pop animation when liked */
+.like-btn.liked i {
+    animation: heartPop 0.3s ease;
+}
+
+@keyframes heartPop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.4); }
+    100% { transform: scale(1); }
+}
+
+/* Likes counter */
 .likes-count {
-    font-size: 16px;
-    margin-left: 6px;           /* Small space between heart and count */
-    color: #111;                /* Dark text for count */
-    font-weight: 500;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(0,0,0,0.6);
+    background: white;
+    padding: 3px 8px;
+    border-radius: 20px;
+}
+
+/* ===============================
+   Responsive
+=============================== */
+@media (max-width: 640px) {
+    .like-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+    }
 }

@@ -1,11 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/product_details.css' %}">
-{% endblock %}
-
 {% block content %}
+<link rel="stylesheet" href="{% static 'product_details.css' %}">
 <div class="product-detail-container">
     <div class="product-images">
         <div class="image-placeholder-large">
@@ -44,19 +41,22 @@
                     <i class="fas fa-cart-plus"></i> Add to Cart
                 </button>
             </form>
-            {% if user.is_authenticated and product.farmer.user != user %}
-                <form method="post" action="{% url 'toggle-like' product.id %}" class="like-form">
-                    {% csrf_token %}
-                    <button type="submit" class="like-btn">
-
-                        <i class="{% if is_liked %}fas{% else %}far{% endif %} fa-heart"></i>
-
+            {% if user.is_authenticated and product.farmer.user != user and product.farmer.user != superuser %}
+                    <form method="POST" action="{% url 'toggle-like' product.id %}" class="like-form">
+                        {% csrf_token %}
+                        {% if car in user.seller.liked_cars.all %}
+                            <button class="like-btn liked">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        {% else %}
+                            <button class="like-btn">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        {% endif %}
                         <span class="likes-count">
                             {{ likes_count }}
                         </span>
-
-                    </button>
-                </form>
+                    </form>
             {% endif %}
         </div>
         
