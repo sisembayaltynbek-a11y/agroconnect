@@ -697,3 +697,39 @@
         padding: 1.5rem;
     }
 }
+
+.like-form {
+    margin-top: 15px;
+}
+
+.like-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #e63946;
+    transition: 0.2s ease;
+}
+
+.like-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Animate only when liked */
+.fas.fa-heart {
+    animation: heartPop 0.3s ease;
+}
+
+@keyframes heartPop {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.35); }
+    100% { transform: scale(1); }
+}
+
+.likes-count {
+    font-size: 16px;
+    font-weight: 600;
+}
