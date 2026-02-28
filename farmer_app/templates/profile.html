@@ -238,7 +238,7 @@ templates/profile.html
             </div>
             
             <div class="favorites-grid">
-                {% for product in farmer.liked_products.all|slice:":4" %}
+                {% for product in farmer.liked_products.all|slice:":9" %}
                 <div class="favorite-card">
                     {% if product.image %}
                         <img src="{{ product.image.url }}" alt="{{ product.name }}">
