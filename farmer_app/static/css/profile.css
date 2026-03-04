@@ -433,55 +433,54 @@
     color: #4caf50;
 }
 
+/* Product Actions - Square Icon Style */
 .product-actions {
     display: flex;
-    gap: 1rem;
+    gap: 0.6rem;
+    margin-top: 1rem;
 }
 
-.view-btn {
-    flex: 1;
-    padding: 10px;
-    background: #2196f3;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 600;
-    text-align: center;
-    transition: background 0.3s ease;
+.product-actions a,
+.product-actions button {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px; /* matches your stat-card style */
+    border: 1px solid #e0e0e0;
+    background: #f9f9f9;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+/* View */
+.view-btn {
+    color: #2196f3;
 }
 
 .view-btn:hover {
-    background: #1976d2;
-    color: white;
+    background: #e3f2fd;
+    border-color: #2196f3;
+    transform: translateY(-3px);
 }
 
-.delete-form {
-    flex: 1;
-}
-
+/* Delete */
 .delete-btn {
-    width: 100%;
-    padding: 10px;
-    background: #f44336;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    color: #f44336;
+    background: #fff5f5;
 }
 
 .delete-btn:hover {
-    background: #d32f2f;
+    background: #fdecea;
+    border-color: #f44336;
+    transform: translateY(-3px);
+}
+
+/* Remove default form spacing */
+.delete-form {
+    margin: 0;
 }
 
 /* Empty State */
