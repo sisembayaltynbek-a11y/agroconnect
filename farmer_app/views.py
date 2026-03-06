@@ -235,9 +235,11 @@ def cart(request):
     for pid, item in cart.items():
         # Convert price to float to ensure it's numeric
         price = float(item['price'])
+        qty = int(item.get('qty', 1))
         item['id'] = pid
-        item['price'] = price  # Update with float value
-        item['total'] = price * item['qty']
+        item['price'] = price
+        item['qty'] = qty  # Update with float value
+        item['total'] = price * qty
         subtotal += item['total']
         cart_items[pid] = item
     
@@ -253,21 +255,37 @@ def cart(request):
 @require_POST
 def add_to_cart(request, product_id):
     product = get_object_or_404(Products, id=product_id)
+    quantity = int(request.POST.get('quantity', 1))
+
     cart = request.session.get('cart', {})
-    pid = str(product.id)  # Use string as key for consistency
-    
+    pid = str(product.id)
+
     if pid in cart:
-        cart[pid]['qty'] += 1
+        cart[pid]['qty'] += quantity
     else:
         cart[pid] = {
             'name': product.name,
-            'price': float(product.price),  # Ensure price is stored as float
-            'qty': 1,
+            'price': float(product.price),
+            'qty': quantity,
         }
-    
+
     request.session['cart'] = cart
     messages.success(request, f"{product.name} added to cart")
     return redirect(request.META.get('HTTP_REFERER', 'products'))
+
+@login_required
+@require_POST
+def increase_quantity(request, product_id):
+    product = get_object_or_404(Products, id=product_id) 
+    cart = request.session.get('cart', {}) 
+    pid = str(product.id) # Use string as key for consistency 
+
+    if pid in cart: 
+        cart[pid]['qty'] += 1
+        
+    request.session['cart'] = cart
+    return redirect(reverse_lazy('cart'))
+
 
 @login_required
 @require_POST
