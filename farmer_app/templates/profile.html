@@ -64,8 +64,13 @@ templates/profile.html
                 <div class="profile-avatar">
                     {% with user.socialaccount_set.first as social %}
                         {% if social and social.provider == "google" %}
-                            <img src="{{ social.extra_data.picture }}"
-                                style="width:100px;height:100px;border-radius:50%;object-fit:cover;">
+                            {% if farmer.avatar %}
+                                <img src="{{ farmer.avatar.url }}"
+                                    style="width:100px;height:100px;border-radius:50%;object-fit:cover;">
+                            {% else %}
+                                <img src="{{ social.extra_data.picture }}"
+                                    style="width:100px;height:100px;border-radius:50%;object-fit:cover;">
+                            {% endif %}
                         {% else %}
                             {% if farmer.avatar %}
                                 <img src="{{ farmer.avatar.url }}"
