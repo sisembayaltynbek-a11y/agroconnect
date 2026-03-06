@@ -118,23 +118,35 @@
                     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5gZ5e_XhZS42P61I0hWTvLSNZ9znLNgθ&callback=initMap"
                     defer>
                 </script>
-                <h2><i class="fas fa-map-marker-alt"></i> Our Service Area</h2>
+                <h2><i class="fas fa-map-marker-alt"></i> Today Best Planting Areas</h2>
                 <div class="map-wrapper">
                     <div id="map"></div>
                 </div>
                 <script>
                     function initMap() {
-                        const serviceArea = { lat: 43.2081, lng: 76.6697 };
+                        const serviceArea = { lat: 48.0196, lng: 66.9237 };
 
                         const map = new google.maps.Map(document.getElementById("map"), {
-                            zoom: 11,
+                            zoom: 4,
                             center: serviceArea,
                         });
 
-                        new google.maps.Marker({
-                            position: serviceArea,
-                            map: map,
-                            title: "Our Service Area",
+                            const plantingAreas = [
+                                { lat: 43.2220, lng: 76.8512 },
+                                { lat: 51.1694, lng: 71.4491 },
+                                { lat: 50.2839, lng: 57.1660 },
+                                { lat: 52.2873, lng: 76.9674 },
+                                { lat: 53.2143, lng: 63.6246 },
+                                { lat: 45.0156, lng: 78.3736 },
+                                { lat: 42.3154, lng: 69.5869 }
+                            ];
+
+                        plantingAreas.forEach(location => {
+                            new google.maps.Marker({
+                                position: location,
+                                map: map,
+                                title: "Best Planting Area"
+                            });
                         });
                     }
                 </script>
