@@ -21,6 +21,7 @@ urlpatterns = [
     # Cart URLs - USE FUNCTION-BASED VIEW
     path('cart/', views.cart, name='cart'),
     path('cart/add/<int:product_id>/', views.add_to_cart, name='add-to-cart'),
+    path('cart/increase/<int:product_id>', views.increase_quantity, name='increase'),
     path('like/<int:product_id>/', views.toggle_like, name='toggle-like'),
     path('cart/delete/<int:pk>/', views.delete_cart_item, name='delete-cart-item'),
 

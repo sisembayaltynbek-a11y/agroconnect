@@ -86,11 +86,45 @@ templates/profile.html
 
                             <h3>{{ social.extra_data.name }}</h3>
                             <p class="profile-email">{{ social.extra_data.email }}</p>
+                                <div class="info-item">
+                                    <i class="fas fa-phone"></i>
+                                    <div>
+                                        <small>Phone</small>
+                                        <p>{{ farmer.phonenumber|default:"Not provided" }}</p>
+                                    </div>
+                                </div>
+
+                                {% if farmer.address %}
+                                <div class="info-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <div>
+                                        <small>Address</small>
+                                        <p>{{ farmer.address }}</p>
+                                    </div>
+                                </div>
+                                {% endif %}
 
                         {% else %}
 
                             <h3>{{ farmer.name }} {{ farmer.last_name }}</h3>
                             <p class="profile-email">{{ farmer.user.email }}</p>
+                                <div class="info-item">
+                                    <i class="fas fa-phone"></i>
+                                    <div>
+                                        <small>Phone</small>
+                                        <p>{{ farmer.phonenumber|default:"Not provided" }}</p>
+                                    </div>
+                                </div>
+
+                                {% if farmer.address %}
+                                <div class="info-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <div>
+                                        <small>Address</small>
+                                        <p>{{ farmer.address }}</p>
+                                    </div>
+                                </div>
+                                {% endif %}
 
                         {% endif %}
                     {% endwith %}

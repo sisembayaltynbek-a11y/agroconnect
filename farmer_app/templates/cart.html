@@ -34,6 +34,14 @@
                     </div>
                 </div>
                 <div class="item-actions">
+                    <form method="post" action="{% url 'increase' item.id %}">
+                        {% csrf_token %}
+                        <div class="confirmation-buttons">
+                            <button type="submit" class="confirm-btn">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </form>
                     <form method="post" action="{% url 'delete-cart-item' item.id %}">
                         {% csrf_token %}
                         <div class="confirmation-buttons">
