@@ -85,25 +85,42 @@
     </div><br>
 
     <h1>Staged Deliveries</h1>
-    <div class="deliveries">
-        {% for delivery in deliveries %}
-            <div class="delivery-item"> <!-- Added container for each delivery -->
+    <div class="deliveries-slider">
+        <div class="slider-fade-left"></div>
+        <div class="slider-fade-right"></div>
+        <div class="deliveries">
+            {% for delivery in deliveries %}
+            <div class="delivery-item">
                 {% if delivery.image %}
                     <img src="{{ delivery.image.url }}" alt="{{ delivery.fullname }}">
                 {% else %}
                     <div class="image-placeholder">
-                        <i class="fas fa-truck"></i> <!-- Changed icon to be more delivery-related -->
+                        <i class="fas fa-truck"></i>
                     </div>
                 {% endif %}
-                <span>{{ delivery.fullname }}</span> <!-- Changed from delivery.name to delivery.fullname -->
+                <span>{{ delivery.fullname }}</span>
                 <p>Stage: {{ delivery.working_stage }}</p>
                 <p>{{ delivery.recommendation|truncatewords:10 }}</p>
             </div>
-        {% empty %}
-            <i class="fas fa-leaf"></i>
-            <p class="no-deliveries">No deliveries available yet.</p>
-        {% endfor %}
-    </div><br>
+            {% endfor %}
+            <!-- duplicate loop for infinite slider -->
+            {% for delivery in deliveries %}
+            <div class="delivery-item">
+                {% if delivery.image %}
+                    <img src="{{ delivery.image.url }}" alt="{{ delivery.fullname }}">
+                {% else %}
+                    <div class="image-placeholder">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                {% endif %}
+                <span>{{ delivery.fullname }}</span>
+                <p>Stage: {{ delivery.working_stage }}</p>
+                <p>{{ delivery.recommendation|truncatewords:10 }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <br>
 
     <div class="advertisements">
         <a href="https://www.kitkat.com/"><img src="{% static 'images/ki.jpg' %}" alt="Kitkat-advertisement"></a>

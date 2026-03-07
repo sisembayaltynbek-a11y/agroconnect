@@ -15,7 +15,7 @@
             {% else %}
                 <i class="fas fa-seedling"></i>
             {% endif %}
-        </div><br><br><br><br><br><br><br><br>
+        </div><br><br><br><br>
             <div class="map-section">
                 <script
                     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5gZ5e_XhZS42P61I0hWTvLSNZ9znLNgθ&callback=initMap"
@@ -85,7 +85,7 @@
                         <input type="number" id="quantity" name="quantity" value="1" min="1" max="100">
                     </div>
                     <button type="submit" class="add-to-cart-btn-large">
-                        <i class="fas fa-cart-plus"></i> Add to Cart
+                         Add to Cart
                     </button>
                 </form>
             
@@ -127,7 +127,7 @@
                 {% endfor %}
             {% else %}
                 <p>No feedback yet.</p>
-            {% endif %}
+            {% endif %}<br>
             {% if user.is_authenticated and can_give_feedback %} 
                 <div class="feedback-form"> 
                     <h3>Leave a Review</h3> 
@@ -154,7 +154,7 @@
             {% else %} 
                 <p class="login-required"> 
                 <a href="{% url 'account_login' %}">Login</a> to leave feedback </p> 
-            {% endif %} 
+            {% endif %}
         </div>
     </div>
 </div>
