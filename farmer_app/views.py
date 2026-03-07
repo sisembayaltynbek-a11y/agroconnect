@@ -21,7 +21,7 @@ from django.views.generic import DeleteView, UpdateView
 from django.db.models import Avg
 
 class Index(View):
-    API_KEY = "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"
+    API_KEY = "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"
     template_name = "home.html"
 
     def get(self, request):

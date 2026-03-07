@@ -556,19 +556,35 @@ h1 {
     margin-top: 0.5rem;
 }
 
-/* Deliveries */
-.deliveries {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 2rem;
+/* ===== Deliveries Slider ===== */
+
+.deliveries-slider {
+    position: relative;
+    overflow: hidden;
     margin-bottom: 4rem;
     background-color: var(--white);
     padding: 2rem;
     border-radius: 20px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
 }
 
+/* Sliding row */
+.deliveries {
+    display: flex;
+    gap: 2rem;
+    width: max-content;
+    animation: deliveriesSlide 35s linear infinite;
+}
+
+/* Pause when hovered */
+.deliveries-slider:hover .deliveries {
+    animation-play-state: paused;
+}
+
+/* Delivery card */
 .delivery-item {
+    min-width: 250px;
+    max-width: 250px;
     background: var(--white);
     border-radius: 15px;
     padding: 2rem;
@@ -577,31 +593,16 @@ h1 {
     overflow: hidden;
     border: 2px solid transparent;
     transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
 }
 
 .delivery-item:hover {
     transform: translateY(-8px);
     border-color: var(--primary-green);
-    box-shadow: 0 12px 25px rgba(46, 125, 50, 0.15);
+    box-shadow: 0 12px 25px rgba(46,125,50,0.15);
 }
 
-.delivery-item::before {
-    content: '🚚';
-    position: absolute;
-    top: -20px;
-    right: -20px;
-    font-size: 4rem;
-    opacity: 0;
-    transform: rotate(-30deg);
-    transition: all 0.5s ease;
-}
-
-.delivery-item:hover::before {
-    opacity: 0.1;
-    transform: rotate(0deg) translate(-20px, 20px);
-}
-
+/* Image */
 .delivery-item img {
     width: 120px;
     height: 120px;
@@ -617,6 +618,7 @@ h1 {
     border-color: var(--primary-green);
 }
 
+/* Name */
 .delivery-item span {
     font-size: 1.3rem;
     font-weight: 600;
@@ -625,11 +627,33 @@ h1 {
     margin: 0.5rem 0;
 }
 
+/* Text */
 .delivery-item p {
     color: var(--gray);
     margin: 0.5rem 0;
     font-size: 0.95rem;
     line-height: 1.5;
+}
+
+/* Edge fade effect */
+.slider-fade-left,
+.slider-fade-right {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.slider-fade-left {
+    left: 0;
+    background: linear-gradient(to right, white, transparent);
+}
+
+.slider-fade-right {
+    right: 0;
+    background: linear-gradient(to left, white, transparent);
 }
 
 /* Advertisements */
@@ -705,6 +729,15 @@ h1 {
 }
 
 /* Animations */
+@keyframes deliveriesSlide {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
 @keyframes fadeInUp {
     from {
         opacity: 0;
