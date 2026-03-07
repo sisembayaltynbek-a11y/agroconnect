@@ -15,13 +15,13 @@
             {% else %}
                 <i class="fas fa-seedling"></i>
             {% endif %}
-        </div><br><br><br>
+        </div><br><br><br><br><br><br><br><br>
             <div class="map-section">
                 <script
                     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5gZ5e_XhZS42P61I0hWTvLSNZ9znLNgθ&callback=initMap"
                     defer>
                 </script>
-                <h2><i class="fas fa-map-marker-alt"></i> Service Area</h2>
+                <h2><i class="fas fa-map-marker-alt"></i> Service Area</h2><br>
                 <div class="map-wrapper">
                     <div id="map"></div>
                 </div>
@@ -52,10 +52,12 @@
                             new google.maps.Marker({
                                 position: serviceArea,
                                 map: map,
-                                title: "Times Square"
+                                title: "serviceArea",
+                                icon: 'http://maps.google.com/mapfiles/ms/icons/shopping.png',
                             });
                         }
-                    </script>
+                    </script><br>
+                    <p>The location is in the middle</p>
                 {% else %}
                     Don't have directed location ...
                 {% endif %}
@@ -75,18 +77,19 @@
         </div>
         
         <div class="product-actions">
-            <form method="post" action="{% url 'add-to-cart' product.id %}" class="add-to-cart-form">
-                {% csrf_token %}
-                <div class="quantity-selector">
-                    <label for="quantity">Quantity:</label>
-                    <input type="number" id="quantity" name="quantity" value="1" min="1" max="100">
-                </div>
-                <button type="submit" class="add-to-cart-btn-large">
-                    <i class="fas fa-cart-plus"></i> Add to Cart
-                </button>
-            </form>
-            
             {% if user.is_authenticated and product.farmer.user != user %}
+                <form method="post" action="{% url 'add-to-cart' product.id %}" class="add-to-cart-form">
+                    {% csrf_token %}
+                    <div class="quantity-selector">
+                        <label for="quantity">Quantity:</label>
+                        <input type="number" id="quantity" name="quantity" value="1" min="1" max="100">
+                    </div>
+                    <button type="submit" class="add-to-cart-btn-large">
+                        <i class="fas fa-cart-plus"></i> Add to Cart
+                    </button>
+                </form>
+            
+
                 <form method="POST" action="{% url 'toggle-like' product.id %}" class="like-form">
                     {% csrf_token %}
                     <button class="like-btn {% if product in user.seller.liked_products.all %}liked{% endif %}">
@@ -125,6 +128,33 @@
             {% else %}
                 <p>No feedback yet.</p>
             {% endif %}
+            {% if user.is_authenticated and can_give_feedback %} 
+                <div class="feedback-form"> 
+                    <h3>Leave a Review</h3> 
+                    <form method="post"> 
+                        {% csrf_token %} 
+                        <label for="rating">Rating</label> 
+                        <select name="rating" id="rating" required> 
+                            <option value="5">★★★★★ (5)</option> 
+                            <option value="4">★★★★☆ (4)</option> 
+                            <option value="3">★★★☆☆ (3)</option> 
+                            <option value="2">★★☆☆☆ (2)</option> 
+                            <option value="1">★☆☆☆☆ (1)</option> 
+                        </select> 
+                        <label for="comment">Comment</label> 
+                        <textarea name="comment" id="comment" rows="4" required placeholder="Share your experience..."></textarea> 
+                        <button type="submit" class="submit-feedback-btn"> Send </button> 
+                    </form> 
+                </div> 
+            {% elif user.is_authenticated %} 
+                {% if product.farmer.user == user %} 
+                    <p class="already-reviewed"> You cannot leave feedback on your own product. </p> 
+                {% else %} <p class="already-reviewed"> You already left feedback for this product ✅ </p> 
+                {% endif %} 
+            {% else %} 
+                <p class="login-required"> 
+                <a href="{% url 'account_login' %}">Login</a> to leave feedback </p> 
+            {% endif %} 
         </div>
     </div>
 </div>

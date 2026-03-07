@@ -181,29 +181,65 @@ def products(request):
         'categories': Categories.objects.all()
     })
 
-# product_details view fix
+# def product_details(request, slug): 
+#     product = get_object_or_404(Products, slug=slug) 
+#     feedbacks = product.received_feedbacks.select_related('farmer').order_by('-created_at') 
+#     can_give_feedback = False 
+#     is_liked = False 
+#     likes_count = product.liked_by.count() 
+#     farmer = None 
+#     if request.user.is_authenticated: 
+#         farmer = Farmer.objects.filter(user=request.user).first() 
+#         if farmer: 
+#             farmer = request.user.farmer 
+#             is_liked = farmer.liked_products.filter(id=product.id).exists() 
+#             if farmer != product.farmer: 
+#                 already_reviewed = Feedback.objects.filter( farmer=farmer, product=product ).exists() 
+#                 can_give_feedback = not already_reviewed 
+#                 if request.method == "POST" and can_give_feedback: 
+#                     rating = int(request.POST.get("rating")) 
+#                     comment = request.POST.get("comment") 
+#                     Feedback.objects.create( farmer=farmer, product=product, rating=rating, comment=comment ) 
+#                     messages.success(request, "Thank you for your feedback!") 
+#                     return redirect("product-details", slug=product.slug) 
+#     return render(request, "product_details.html", { "product": product, "feedbacks": feedbacks, "can_give_feedback": can_give_feedback, "is_liked": is_liked, "likes_count": likes_count, })
+
 def product_details(request, slug):
     product = get_object_or_404(Products, slug=slug)
     feedbacks = product.received_feedbacks.select_related('farmer').order_by('-created_at')
 
     can_give_feedback = False
     is_liked = False
-    
-    if request.user.is_authenticated:
-        # Use hasattr to check if the user actually has a farmer profile
-        if hasattr(request.user, 'farmer'):
-            farmer = request.user.farmer
-            is_liked = farmer.liked_products.filter(id=product.id).exists()
-            
-            # Logic check: Don't let farmers review their own products
-            if farmer != product.farmer:
-                already_reviewed = Feedback.objects.filter(farmer=farmer, product=product).exists()
-                can_give_feedback = not already_reviewed
-        else:
-            # Handle regular users who aren't farmers
-            farmer = None 
+    farmer = None
 
-    # Handle POST for feedback here...
+    if request.user.is_authenticated and hasattr(request.user, 'farmer'):
+        farmer = request.user.farmer
+
+        is_liked = farmer.liked_products.filter(id=product.id).exists()
+
+        if farmer != product.farmer:
+            already_reviewed = Feedback.objects.filter(
+                farmer=farmer,
+                product=product
+            ).exists()
+
+            can_give_feedback = not already_reviewed
+
+    # ✅ HANDLE FEEDBACK SUBMISSION
+    if request.method == "POST" and farmer and can_give_feedback:
+        rating = request.POST.get("rating")
+        comment = request.POST.get("comment")
+
+        Feedback.objects.create(
+            farmer=farmer,
+            product=product,
+            rating=rating,
+            comment=comment
+        )
+
+        messages.success(request, "Thank you for your feedback!")
+        return redirect("product-details", slug=slug)
+
     return render(request, "product_details.html", {
         "product": product,
         "feedbacks": feedbacks,
@@ -211,7 +247,6 @@ def product_details(request, slug):
         "is_liked": is_liked,
         "likes_count": product.liked_by.count(),
     })
-
 
 def search(request):
     searched = request.POST.get('searched')
@@ -374,7 +409,7 @@ def delete_self_published(request, product_id):
 
 class UpdatePost(UpdateView):
     model = Products
-    fields = '__all__'
+    fields = ['image', 'name', 'price', 'excerpt', 'description', 'category']
     template_name = 'update.html'
     success_url = reverse_lazy('products')
 
