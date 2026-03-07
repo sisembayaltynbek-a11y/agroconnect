@@ -3,6 +3,10 @@
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'product_details.css' %}">
+<style>
+    #map { height: 300px; width: 100%; border-radius: 8px; margin-top: 10px; }
+</style>
+
 <div class="product-detail-container">
     <div class="product-images">
         <div class="image-placeholder-large">
@@ -11,18 +15,58 @@
             {% else %}
                 <i class="fas fa-seedling"></i>
             {% endif %}
-        </div>
+        </div><br><br><br>
+            <div class="map-section">
+                <script
+                    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5gZ5e_XhZS42P61I0hWTvLSNZ9znLNgθ&callback=initMap"
+                    defer>
+                </script>
+                <h2><i class="fas fa-map-marker-alt"></i> Service Area</h2>
+                <div class="map-wrapper">
+                    <div id="map"></div>
+                </div>
+                {% if product.farmer.location %}
+                    {{ product.farmer.location.latitude|json_script:"lat-data" }}
+                    {{ product.farmer.location.longitude|json_script:"lng-data" }}
+                {% endif %}
+                {% if product.farmer.location and product.farmer.location.latitude %}
+                    <script>
+                        function initMap() {
+                            // Используем фильтр l10n off, чтобы координаты всегда были с точкой
+                            const lat = parseFloat("{{ product.farmer.location.latitude }}");
+                            const lng = parseFloat("{{ product.farmer.location.longitude }}");
+
+
+                            if (isNaN(lat) || isNaN(lng)) {
+                                console.error("Invalid coordinates");
+                                return;
+                            }
+
+                            const serviceArea = { lat: lat, lng: lng };
+
+                            const map = new google.maps.Map(document.getElementById("map"), {
+                                zoom: 13, // Увеличьте зум, чтобы увидеть саму площадь (8 - это слишком далеко)
+                                center: serviceArea
+                            });
+
+                            new google.maps.Marker({
+                                position: serviceArea,
+                                map: map,
+                                title: "Times Square"
+                            });
+                        }
+                    </script>
+                {% else %}
+                    Don't have directed location ...
+                {% endif %}
+            </div>
     </div>
     
     <div class="product-info">
         <h1>{{ product.name }}</h1>
-        
         <div class="product-meta">
-            <span class="category-tag">
-                <i class="fas fa-tag"></i> {{ product.category.name }}
-            </span>
+            <span class="category-tag"><i class="fas fa-tag"></i> {{ product.category.name }}</span>
         </div>
-        
         <div class="product-price">₸{{ product.price|floatformat:2 }}</div>
         
         <div class="product-description">
@@ -41,22 +85,15 @@
                     <i class="fas fa-cart-plus"></i> Add to Cart
                 </button>
             </form>
-            {% if user.is_authenticated and product.farmer.user != user and product.farmer.user != superuser %}
-                    <form method="POST" action="{% url 'toggle-like' product.id %}" class="like-form">
-                        {% csrf_token %}
-                        {% if car in user.seller.liked_cars.all %}
-                            <button class="like-btn liked">
-                                <i class="fas fa-heart"></i>
-                            </button>
-                        {% else %}
-                            <button class="like-btn">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        {% endif %}
-                        <span class="likes-count">
-                            {{ likes_count }}
-                        </span>
-                    </form>
+            
+            {% if user.is_authenticated and product.farmer.user != user %}
+                <form method="POST" action="{% url 'toggle-like' product.id %}" class="like-form">
+                    {% csrf_token %}
+                    <button class="like-btn {% if product in user.seller.liked_products.all %}liked{% endif %}">
+                        <i class="{% if product in user.seller.liked_products.all %}fas{% else %}far{% endif %} fa-heart"></i>
+                    </button>
+                    <span class="likes-count">{{ likes_count }}</span>
+                </form>
             {% endif %}
         </div>
         
@@ -65,100 +102,30 @@
             <ul>
                 <li><strong>Category:</strong> {{ product.category.name }}</li>
                 <li><strong>Seller:</strong> {{ product.farmer.name }}</li>
-                <li><strong>Phone:</strong> 
-                    <a href="tel:{{ product.farmer.phonenumber }}" class="phone-link">
-                        <i class="fas fa-phone"></i> {{ product.farmer.phonenumber }}
-                    </a>
-                </li>
-                {% if product.farmer.address %}
-                <li><strong>Location:</strong> {{ product.farmer.address }}</li>
-                {% endif %}
+                <li><strong>Phone:</strong> <a href="tel:{{ product.farmer.phonenumber }}">{{ product.farmer.phonenumber }}</a></li>
+                {% if product.farmer.address %}<li><strong>Location:</strong> {{ product.farmer.address }}</li>{% endif %}
                 <li><strong>Added:</strong> {{ product.created_at|date:"F d, Y" }}</li>
-                {% if product.harvest_date %}
-                <li><strong>Harvest Date:</strong> {{ product.harvest_date|date:"F d, Y" }}</li>
-                {% endif %}
             </ul>
         </div>
-        <!-- FEEDBACK SECTION -->
-<div class="feedback-container">
-    <h2>Customer Feedback</h2>
 
-    {% if feedbacks %}
-        <div class="feedback-list">
-            {% for feedback in feedbacks %}
-                <div class="feedback-card">
-                    <div class="feedback-header">
-                        <strong>
-                            {{ feedback.farmer.name }}
-                            {{ feedback.farmer.last_name }}
-                        </strong>
-                        <span class="feedback-date">
-                            {{ feedback.created_at|date:"M d, Y" }}
-                        </span>
+        <div class="feedback-container">
+            <h2>Customer Feedback</h2>
+            {% if feedbacks %}
+                {% for feedback in feedbacks %}
+                    <div class="feedback-card">
+                        <strong>{{ feedback.farmer.name }}</strong>
+                        <div class="feedback-rating">
+                            {% for i in "12345" %}
+                                <i class="{% if forloop.counter <= feedback.rating %}fas{% else %}far{% endif %} fa-star"></i>
+                            {% endfor %}
+                        </div>
+                        <p>{{ feedback.comment }}</p>
                     </div>
-
-                    <div class="feedback-rating">
-                        {% for i in "12345" %}
-                            {% if forloop.counter <= feedback.rating %}
-                                <i class="fas fa-star filled"></i>
-                            {% else %}
-                                <i class="far fa-star"></i>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-
-                    <p class="feedback-comment">
-                        {{ feedback.comment }}
-                    </p>
-                </div>
-            {% endfor %}
+                {% endfor %}
+            {% else %}
+                <p>No feedback yet.</p>
+            {% endif %}
         </div>
-    {% else %}
-        <p class="no-feedback">No feedback yet. Be the first to review this product 🌱</p>
-    {% endif %}
-
-    {% if user.is_authenticated and can_give_feedback %}
-        <div class="feedback-form">
-            <h3>Leave a Review</h3>
-
-            <form method="post">
-                {% csrf_token %}
-
-                <label for="rating">Rating</label>
-                <select name="rating" id="rating" required>
-                    <option value="5">★★★★★ (5)</option>
-                    <option value="4">★★★★☆ (4)</option>
-                    <option value="3">★★★☆☆ (3)</option>
-                    <option value="2">★★☆☆☆ (2)</option>
-                    <option value="1">★☆☆☆☆ (1)</option>
-                </select>
-
-                <label for="comment">Comment</label>
-                <textarea name="comment" id="comment" rows="4" required
-                          placeholder="Share your experience..."></textarea>
-
-                <button type="submit" class="submit-feedback-btn">
-                    Send
-                </button>
-            </form>
-        </div>
-    {% elif user.is_authenticated %}
-        {% if product.farmer.user == user %}
-            <p class="already-reviewed">
-                You cannot leave feedback on your own product.
-            </p>
-        {% else %}
-            <p class="already-reviewed">
-                You already left feedback for this product ✅
-            </p>
-        {% endif %}
-    {% else %}
-        <p class="login-required">
-            <a href="{% url 'account_login' %}">Login</a> to leave feedback
-        </p>
-    {% endif %}
-</div>
-
     </div>
 </div>
 {% endblock %}

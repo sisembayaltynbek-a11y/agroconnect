@@ -22,6 +22,13 @@ class Deliveries(models.Model):
     def __str__(self):
         return self.fullname
 
+class Location(models.Model):
+    latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+
+    def __str__(self):
+        return f"{self.latitude}, {self.longitude}"
+
 class Farmer(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -32,6 +39,7 @@ class Farmer(models.Model):
     last_name = models.CharField(max_length=50, blank=True)
     phonenumber = models.CharField(max_length=15)
     address = models.CharField(max_length=255, null=True, blank=True)
+    location = models.OneToOneField(Location, on_delete=models.CASCADE, null=True, blank=True)
     liked_products = models.ManyToManyField(
         'Products',
         blank=True,
@@ -39,8 +47,7 @@ class Farmer(models.Model):
     )
 
     def __str__(self):
-        return f"{self.name} {self.last_name}"
-
+        return f"{self.name} {self.last_name}"    
 
 class Products(models.Model):
     image = models.ImageField(upload_to="products/", null=True, blank=True)
@@ -54,7 +61,7 @@ class Products(models.Model):
     )
     excerpt = models.CharField(max_length=200, null=True, blank=True)
     description = models.TextField()
-    harvest_date = models.DateField(default=timezone.now())
+    harvest_date = models.DateField(default=timezone.now)
     category = models.ForeignKey(Categories, on_delete=models.CASCADE)
 
     def __str__(self):
