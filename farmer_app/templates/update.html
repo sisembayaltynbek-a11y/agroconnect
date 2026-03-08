@@ -20,12 +20,9 @@
         <form method="POST" enctype="multipart/form-data" class="update-form">
             {% csrf_token %}
             {{ form.as_p }}
-
-            <label>Latitude</label>
-            <input type="number" step="any" name="latitude">
-
-            <label>Longitude</label>
-            <input type="number" step="any" name="longitude">
+            
+            <label>Location</label>
+            <input type="text" name="location">
 
             <button type="submit" class="btn-save">Save</button>
         </form>

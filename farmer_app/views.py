@@ -1,4 +1,5 @@
 from decimal import Decimal
+import json
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -21,7 +22,7 @@ from django.views.generic import DeleteView, UpdateView
 from django.db.models import Avg
 
 class Index(View):
-    API_KEY = "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"
+    API_KEY = "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"
     template_name = "home.html"
 
     def get(self, request):
@@ -29,17 +30,20 @@ class Index(View):
         cheap_products = Products.objects.filter(price__lt=Decimal('700.00'))[:8]
         popular_products = Products.objects.all().order_by('-id')[:8] 
         staged_deliveries = Deliveries.objects.filter(working_stage__gte=3)
+        # planting_areas = self.ai_best_planting()
         
         return render(request, self.template_name, {
             'categories': categories,
             'deliveries': staged_deliveries,
             'popular_products': popular_products,
-            'cheap_products': cheap_products,  # Renamed for clarity
+            'cheap_products': cheap_products, # Renamed for clarity
+            # 'planting_areas': planting_areas,
             'ai_response': None,
         })
     
     def post(self, request):
         user_input = request.POST.get("user_input", "")
+        # planting_areas = self.ai_best_planting()
         ai_response = self.get_response(user_input)
         categories = Categories.objects.all()
         staged_deliveries = Deliveries.objects.filter(working_stage__gte=3)
@@ -51,15 +55,52 @@ class Index(View):
             'deliveries': staged_deliveries,
             'popular_products': popular_products,
             'cheap_products': cheap_products,
+            # 'planting_areas': planting_areas,
             'ai_response': ai_response,
             'user_input': user_input,
         })
 
-    
+    # def ai_best_planting(self):
+    #     client = OpenAI(
+    #         base_url="https://openrouter.ai/api/v1",
+    #         api_key=self.API_KEY
+    #     )
+
+    #     try:
+    #         completion = client.chat.completions.create(
+    #             model="deepseek/deepseek-r1-distill-qwen-32b",
+    #             messages=[
+    #                 {
+    #                     "role": "user",
+    #                     "content": """
+    #                     Return ONLY valid JSON.
+
+    #                     Give the best 10 planting areas in Kazakhstan today.
+
+    #                     Format example:
+    #                     {
+    #                     "locations":[
+    #                         {"lat":43.2220,"lng":76.8512},
+    #                         {"lat":42.9000,"lng":71.3667}
+    #                     ]
+    #                     }
+    #                     """
+    #                 }
+    #             ]
+    #         )
+
+    #         result = completion.choices[0].message.content
+
+    #         return json.loads(result)
+
+    #     except Exception as e:
+    #         print(e)
+    #         return {"locations": []}
+        
     def get_response(self, user_input):
         client = OpenAI(
-        base_url="https://openrouter.ai/api/v1",
-        api_key=self.API_KEY
+            base_url="https://openrouter.ai/api/v1",
+            api_key=self.API_KEY
         )
         try:
             completion = client.chat.completions.create(
@@ -72,7 +113,14 @@ class Index(View):
             messages=[
                 {
                 "role": "user",
-                "content": f"We are in Kazakhstan, I have a farm website and a user please this is the question of my websites user: {user_input}"
+                "content": f"""
+                    You are an AI agricultural expert helping farmers in Kazakhstan.
+
+                    User question:
+                    {user_input}
+
+                    Give short practical farming advice.
+                """
                 }
                 ]
             )
@@ -93,6 +141,30 @@ def category_products(request, id):
         'products': products
     })
 
+def ai_price_advisor(request, product_name):
+    client = OpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        api_key=Index.API_KEY
+    )
+    try:
+        completion = client.chat.completions.create(
+            model="deepseek/deepseek-r1-distill-qwen-32b",
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"Suggest a reasonable market price for {product_name} in Kazakhstan farm markets. Return only a number in KZT."
+                }
+            ]
+        )
+        suggestion = completion.choices[0].message.content
+    except Exception as e:
+        print(e)
+        suggestion = "Price suggestion unavailable"
+
+    return JsonResponse({
+        "product": product_name,
+        "suggested_price": suggestion
+    })
 
 class AddProductView(LoginRequiredMixin, CreateView):
     model = Products
@@ -109,8 +181,8 @@ class AddProductView(LoginRequiredMixin, CreateView):
             }
         )
         form.instance.farmer = farmer
+        messages.success(self.request, "Product added successfully!")
         return super().form_valid(form)
-
 
 class Login(LoginView):
     template_name = 'account/login.html'
@@ -169,7 +241,7 @@ class FarmerSignUpView(FormView):
             messages.warning(self.request, "Account created but automatic login failed. Please log in manually.")
         
         return redirect(self.success_url)
-    
+        
 class Logout(LogoutView):
     template_name = 'account/logout.html'
 
@@ -181,31 +253,14 @@ def products(request):
         'categories': Categories.objects.all()
     })
 
-# def product_details(request, slug): 
-#     product = get_object_or_404(Products, slug=slug) 
-#     feedbacks = product.received_feedbacks.select_related('farmer').order_by('-created_at') 
-#     can_give_feedback = False 
-#     is_liked = False 
-#     likes_count = product.liked_by.count() 
-#     farmer = None 
-#     if request.user.is_authenticated: 
-#         farmer = Farmer.objects.filter(user=request.user).first() 
-#         if farmer: 
-#             farmer = request.user.farmer 
-#             is_liked = farmer.liked_products.filter(id=product.id).exists() 
-#             if farmer != product.farmer: 
-#                 already_reviewed = Feedback.objects.filter( farmer=farmer, product=product ).exists() 
-#                 can_give_feedback = not already_reviewed 
-#                 if request.method == "POST" and can_give_feedback: 
-#                     rating = int(request.POST.get("rating")) 
-#                     comment = request.POST.get("comment") 
-#                     Feedback.objects.create( farmer=farmer, product=product, rating=rating, comment=comment ) 
-#                     messages.success(request, "Thank you for your feedback!") 
-#                     return redirect("product-details", slug=product.slug) 
-#     return render(request, "product_details.html", { "product": product, "feedbacks": feedbacks, "can_give_feedback": can_give_feedback, "is_liked": is_liked, "likes_count": likes_count, })
+def ai_recommend_products(product):
+    return Products.objects.filter(
+        category=product.category
+    ).exclude(id=product.id).order_by('?')[:4]
 
 def product_details(request, slug):
     product = get_object_or_404(Products, slug=slug)
+    recommended_products = ai_recommend_products(product)
     feedbacks = product.received_feedbacks.select_related('farmer').order_by('-created_at')
 
     can_give_feedback = False
@@ -242,6 +297,7 @@ def product_details(request, slug):
 
     return render(request, "product_details.html", {
         "product": product,
+        "recommended_products": recommended_products,
         "feedbacks": feedbacks,
         "can_give_feedback": can_give_feedback,
         "is_liked": is_liked,
@@ -413,32 +469,48 @@ class UpdatePost(UpdateView):
     template_name = 'update.html'
     success_url = reverse_lazy('products')
 
-class UpdateUser(LoginRequiredMixin, UpdateView):
-    model = Farmer
-    fields = ['avatar', 'phonenumber', 'address']
-    template_name = 'update.html'
-    success_url = reverse_lazy('profile')
-
-    def get_object(self):
-        return self.request.user.farmer
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-
-        lat = self.request.POST.get("latitude")
-        lng = self.request.POST.get("longitude")
-
-        if lat and lng:
-            if self.object.location:
-                self.object.location.latitude = lat
-                self.object.location.longitude = lng
-                self.object.location.save()
-            else:
-                location = Location.objects.create(
-                    latitude=lat,
-                    longitude=lng
+class UpdateUser(LoginRequiredMixin, UpdateView): 
+    model = Farmer 
+    fields = ['avatar', 'phonenumber']
+    template_name = 'update.html' 
+    success_url = reverse_lazy('profile') 
+    def get_object(self): 
+        return self.request.user.farmer 
+    def latlng_former(self, location_name): 
+        client = OpenAI( base_url="https://openrouter.ai/api/v1", api_key=Index.API_KEY ) 
+        try: 
+            completion = client.chat.completions.create( 
+                model="deepseek/deepseek-r1-distill-qwen-32b", 
+                messages=[ { 
+                    "role": "user", 
+                    "content": f""" 
+                    Return ONLY valid Text. 
+                    Give the latitude and longitude of the {location_name}. 
+                    only like this without letters and words
+                    Format example: "43.2220,76.8512" 
+                    """ 
+                    } ] 
                 )
-                self.object.location = location
-                self.object.save()
-
-        return response
+            suggestion = completion.choices[0].message.content.split(',') 
+        except Exception as e: 
+            print(e) 
+            suggestion = "Error 503" 
+        return suggestion 
+    def form_valid(self, form): 
+        response = super().form_valid(form) 
+        location = self.request.POST.get("location") 
+        if location: 
+            lat_lng = self.latlng_former(location_name=location) 
+            if self.object.location: 
+                self.object.location.latitude = float(lat_lng[0]) 
+                self.object.location.longitude = float(lat_lng[1]) 
+                self.object.location.save() 
+                
+            else: 
+                location = Location.objects.create( 
+                    latitude=float(lat_lng[0]), 
+                    longitude=float(lat_lng[1]) 
+                ) 
+                self.object.location = location 
+                self.object.save() 
+                return response

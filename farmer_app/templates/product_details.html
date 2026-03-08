@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'product_details.css' %}">
+<link rel="stylesheet" href="{% static 'css/product_details.css' %}">
 <style>
     #map { height: 300px; width: 100%; border-radius: 8px; margin-top: 10px; }
 </style>
@@ -15,13 +15,13 @@
             {% else %}
                 <i class="fas fa-seedling"></i>
             {% endif %}
-        </div><br><br><br><br>
+        </div><br>
             <div class="map-section">
                 <script
                     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5gZ5e_XhZS42P61I0hWTvLSNZ9znLNgθ&callback=initMap"
                     defer>
                 </script>
-                <h2><i class="fas fa-map-marker-alt"></i> Service Area</h2><br>
+                <h2><i class="fas fa-map-marker-alt"></i> Service Area</h2>
                 <div class="map-wrapper">
                     <div id="map"></div>
                 </div>
@@ -61,6 +61,45 @@
                 {% else %}
                     Don't have directed location ...
                 {% endif %}
+            </div>
+            <h1>Recommendations</h1>
+            <div class="products-grid">
+                {% for product in recommended_products %}
+                <div class="product-card">
+                    <div class="product-img-placeholder">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                            <i class="fas fa-seedling"></i>
+                        {% endif %}
+                    </div>
+                    
+                    <h3>{{ product.name }}</h3>
+                    <p class="product-description">{{ product.excerpt|truncatewords:15 }}</p>
+                    
+                    <div class="product-footer">
+                        <div class="price">₸{{ product.price|floatformat:2 }}</div>
+                        
+                        <form method="post" action="{% url 'add-to-cart' product.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="add-to-cart-btn">
+                                <i class="fas fa-cart-plus"></i> Add to Cart
+                            </button>
+                        </form>
+                        
+                        <a href="{% url 'product-details' product.slug %}" class="view-details">
+                            View Details <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="no-products">
+                    <i class="fas fa-search"></i>
+                    <h3>No products available</h3>
+                    <p>Check back later or add your own product!</p>
+                    <a href="{% url 'add-product' %}" class="btn">Add Product</a>
+                </div>
+                {% endfor %}
             </div>
     </div>
     
