@@ -103,21 +103,6 @@
                 <p>{{ delivery.recommendation|truncatewords:10 }}</p>
             </div>
             {% endfor %}
-            <!-- duplicate loop for infinite slider -->
-            {% for delivery in deliveries %}
-            <div class="delivery-item">
-                {% if delivery.image %}
-                    <img src="{{ delivery.image.url }}" alt="{{ delivery.fullname }}">
-                {% else %}
-                    <div class="image-placeholder">
-                        <i class="fas fa-truck"></i>
-                    </div>
-                {% endif %}
-                <span>{{ delivery.fullname }}</span>
-                <p>Stage: {{ delivery.working_stage }}</p>
-                <p>{{ delivery.recommendation|truncatewords:10 }}</p>
-            </div>
-            {% endfor %}
         </div>
     </div>
     <br>
@@ -135,29 +120,20 @@
                     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5gZ5e_XhZS42P61I0hWTvLSNZ9znLNgθ&callback=initMap"
                     defer>
                 </script>
-                <h2><i class="fas fa-map-marker-alt"></i> Today Best Planting Areas</h2>
+                <h2><i class="fas fa-map-marker-alt"></i> AI recommended planting areas</h2>
                 <div class="map-wrapper">
                     <div id="map"></div>
                 </div>
                 <script>
                     function initMap() {
-                        // Exact 🌱 emoji replica
+
                         const plantSvg = {
                             url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40">
-                                    <!-- Small brown seed/soil base -->
                                     <ellipse cx="12" cy="18" rx="3" ry="1.5" fill="#8B4513"/>
-                                    
-                                    <!-- Curved stem -->
                                     <path d="M12,18 Q14,14 12,10 Q10,6 12,4" stroke="#4CAF50" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-                                    
-                                    <!-- Left leaf (the classic split leaf shape) -->
                                     <path d="M12,8 Q8,8 6,5 Q9,6 12,8" fill="#4CAF50" opacity="0.9"/>
-                                    
-                                    <!-- Right leaf -->
                                     <path d="M12,8 Q16,8 18,5 Q15,6 12,8" fill="#4CAF50" opacity="0.9"/>
-                                    
-                                    <!-- Leaf veins/lighter tips -->
                                     <path d="M9,6 Q11,7 12,8" stroke="#81C784" stroke-width="1" fill="none"/>
                                     <path d="M15,6 Q13,7 12,8" stroke="#81C784" stroke-width="1" fill="none"/>
                                 </svg>
@@ -173,7 +149,12 @@
                             center: serviceArea,
                         });
 
-                        const plantingAreas = [
+                        // Injected from Django as JSON
+                        // If AI returned nothing, it will be an empty array
+                        const plantingAreasAI = "{{ planting_areas|safe }}";
+
+                        // Fallback hard-coded locations
+                        const fallbackAreas = [
                             { lat: 43.2220, lng: 76.8512 },
                             { lat: 51.1694, lng: 71.4491 },
                             { lat: 50.2839, lng: 57.1660 },
@@ -183,16 +164,23 @@
                             { lat: 42.3154, lng: 69.5869 }
                         ];
 
-                        plantingAreas.forEach(location => {
+                        // Decide which one to use
+                        // const plantingAreas = (plantingAreasAI && plantingAreasAI.locations && plantingAreasAI.locations.length > 0)
+                        //     ? plantingAreasAI.locations
+                        //     : fallbackAreas;
+
+                        // Loop through planting areas
+                        for (let i = 0; i < fallbackAreas.length; i++) {
+                            const location = fallbackAreas[i];
                             new google.maps.Marker({
                                 position: location,
                                 map: map,
                                 title: "🌱 Best Planting Area",
                                 icon: plantSvg
                             });
-                        });
-                        
-                        // Add a legend
+                        }
+
+                        // Add legend
                         const legend = document.createElement('div');
                         legend.innerHTML = '🌱 = Best Planting Areas';
                         legend.style.position = 'absolute';
@@ -207,7 +195,8 @@
                         legend.style.zIndex = '10';
                         map.controls[google.maps.ControlPosition.BOTTOM_LEFT].push(legend);
                     }
-                </script>           </div>
+                </script>
+                </div>
             
             <!-- About Content -->
             <div class="about-content">

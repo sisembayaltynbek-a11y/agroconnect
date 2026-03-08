@@ -8,6 +8,7 @@ urlpatterns = [
     path('accounts/logout/', views.Logout.as_view(), name='logout'),
     path('accounts/signup/', views.FarmerSignUpView.as_view(), name='signup'),
     
+    path('suggest-price/<str:product_name>', views.ai_price_advisor, name='suggest-price'),
     path('add-product/', views.AddProductView.as_view(), name='add-product'),
     path('products/', views.products, name='products'),
     path(
