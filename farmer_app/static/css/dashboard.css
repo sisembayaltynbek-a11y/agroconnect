@@ -1,0 +1,143 @@
+/* ===== Search Section ===== */
+
+.search-input-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.search-input-container form {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 550px; /* controls total search bar width */
+}
+
+.search-input-container .input {
+    flex: 1; /* makes the input expand */
+    padding: 0.7rem 1rem;
+    border: 2px solid #ddd;
+    border-radius: 25px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.search-input-container .input:focus {
+    border-color: #2e7d32;
+    box-shadow: 0 0 0 3px rgba(46,125,50,0.15);
+}
+
+.search-input-container button {
+    background-color: #2e7d32;
+    color: white;
+    border: none;
+    padding: 0 1.4rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.3s ease;
+}
+
+.search-input-container button:hover {
+    background-color: #1b5e20;
+}
+/* ===== Weather Container ===== */
+
+.weather-container {
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+}
+
+
+/* ===== Header ===== */
+
+.weather-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.weather-header h1 {
+    color: #2e7d32;
+    font-size: 2rem;
+    margin-bottom: 5px;
+}
+
+.weather-header .date {
+    color: #777;
+    font-size: 0.9rem;
+}
+
+
+/* ===== Weather Grid ===== */
+
+.weather-main {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(550px,1fr));
+    gap: 1.5rem;
+}
+
+
+/* ===== Weather Cards ===== */
+
+.weather-card {
+    text-align: center;
+    background: #f1f3f5; /* slightly darker gray */
+    border-radius: 16px;
+    padding: 1.0rem 1.0rem;
+    transition: all 0.2s ease;
+}
+
+.weather-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.weather-card h3 {
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.weather-card p {
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1.1rem;
+    margin: 4px 0;
+    color: #555;
+}
+
+.weather-card span {
+    font-weight: 600;
+    color: #111;
+}
+
+
+/* ===== Weather Icon ===== */
+
+.weather-condition {
+    text-align: center;
+}
+
+.weather-icon {
+    width: 70px;
+    margin: 10px auto;
+    display: block;
+}
+
+
+/* ===== Responsive ===== */
+
+@media (max-width:768px){
+
+.weather-header h1{
+    font-size:1.5rem;
+}
+
+.search-input .input{
+    width:180px;
+}
+
+}

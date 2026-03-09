@@ -14,6 +14,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from openai import OpenAI
+import requests
 
 from .models import Deliveries, Location, Products, Categories, Farmer, Feedback
 from .forms import AddFarmProduct, FarmerSignUpForm
@@ -471,7 +472,7 @@ class UpdatePost(UpdateView):
 
 class UpdateUser(LoginRequiredMixin, UpdateView): 
     model = Farmer 
-    fields = ['avatar', 'phonenumber']
+    fields = ['avatar', 'phonenumber', 'address']
     template_name = 'update.html' 
     success_url = reverse_lazy('profile') 
     def get_object(self): 
@@ -494,7 +495,7 @@ class UpdateUser(LoginRequiredMixin, UpdateView):
             suggestion = completion.choices[0].message.content.split(',') 
         except Exception as e: 
             print(e) 
-            suggestion = "Error 503" 
+            suggestion = "43.2220,76.8512" 
         return suggestion 
     def form_valid(self, form): 
         response = super().form_valid(form) 
@@ -514,3 +515,40 @@ class UpdateUser(LoginRequiredMixin, UpdateView):
                 self.object.location = location 
                 self.object.save() 
                 return response
+            
+def iot_dashboard(request):
+    city_name = request.POST.get('city_name', 'Almaty')
+
+    url = f"https://api.openweathermap.org/data/2.5/forecast?q={city_name}&appid=89c57e8dfcd68a00c8b51ce244feff28&units=metric"
+    response = requests.get(url)
+    data = response.json()
+
+    forecast = data['list'][0]  # first forecast record
+
+    sendings = {
+        "city": city_name,
+        "datetime": forecast['dt_txt'],
+
+        # main weather data
+        "temp": forecast['main']['temp'],
+        "feels_like": forecast['main']['feels_like'],
+        "temp_min": forecast['main']['temp_min'],
+        "temp_max": forecast['main']['temp_max'],
+        "pressure": forecast['main']['pressure'],
+        "humidity": forecast['main']['humidity'],
+
+        # weather description
+        "weather_main": forecast['weather'][0]['main'],
+        "weather_description": forecast['weather'][0]['description'],
+        "weather_icon": forecast['weather'][0]['icon'],
+
+        # extra information
+        "clouds": forecast['clouds']['all'],
+        "wind_speed": forecast['wind']['speed'],
+        "wind_deg": forecast['wind']['deg'],
+        "wind_gust": forecast['wind'].get('gust'),
+        "visibility": forecast['visibility'],
+        "rain_probability": forecast['pop'],
+    }
+
+    return render(request, "dashboard.html", sendings)

@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}"><br><br>
+    <div class="search-input-container">
+        <form method="post" action="{% url 'dashboard' %}">
+            {% csrf_token %}
+            <input type="text" name="city_name" class="input" placeholder="London, Tokyo, New York & e.g. ">
+            <button type="submit">Select</button>
+        </form>
+    </div>
+
+    <div class="weather-container">
+
+        <div class="weather-header">
+            <h1>Planting Conditions in {{ city }}</h1>
+            <p class="date">Date: {{ datetime }}</p>
+        </div><br>
+
+        <div class="weather-main">
+
+            <div class="weather-card temp">
+                <h3>🌡 Temperature</h3><br>
+                <p>Temp: <span>{{ temp }} °C</span></p>
+                <p>Feels Like: <span>{{ feels_like }} °C</span></p>
+                <p>Min Temp: <span>{{ temp_min }} °C</span></p>
+                <p>Max Temp: <span>{{ temp_max }} °C</span></p><br>
+            </div>
+
+            <div class="weather-card atmo">
+                <h3>🌍 Atmosphere</h3><br>
+                <p>Pressure: <span>{{ pressure }} hPa</span></p>
+                <p>Humidity: <span>{{ humidity }} %</span></p>
+                <p>Visibility: <span>{{ visibility }} m</span></p>
+            </div>
+
+            <div class="weather-card weather-condition">
+                <h3>☁ Weather</h3>
+                <img src="https://openweathermap.org/img/wn/{{ weather_icon }}@2x.png" class="weather-icon">
+                <p>Main: <span>{{ weather_main }}</span></p>
+                <p>Description: <span>{{ weather_description }}</span></p>
+            </div>
+
+            <div class="weather-card wind">
+                <h3>💨 Wind</h3><br>
+                <p>Speed: <span>{{ wind_speed }} m/s</span></p>
+                <p>Direction: <span>{{ wind_deg }}°</span></p>
+                <p>Gust: <span>{{ wind_gust }}</span></p>
+            </div>
+
+            <div class="weather-card clouds">
+                <h3>☁ Clouds</h3>
+                <p>Cloudiness: <span>{{ clouds }} %</span></p>
+            </div>
+
+            <div class="weather-card rain">
+                <h3>🌧 Rain</h3>
+                <p>Probability: <span>{{ rain_probability }}</span></p>
+            </div>
+
+        </div><br>
+
+    </div>
+
+{% endblock %}
