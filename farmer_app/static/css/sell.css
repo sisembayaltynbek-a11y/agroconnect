@@ -441,3 +441,70 @@ select:valid:focus {
         padding: 0.8rem;
     }
 }
+
+/* Ensure Django inputs always fill container */
+.sell-form input,
+.sell-form textarea,
+.sell-form select {
+    display: block;
+}
+
+/* AI Suggest Price Button */
+#aiPriceBtn {
+    margin-top: 12px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #4caf50, #2e7d32);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+#aiPriceBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(46,125,50,0.3);
+}
+
+/* AI Price Result */
+#aiPriceResult {
+    margin-top: 10px;
+    font-weight: 600;
+    color: #2e7d32;
+    background: rgba(76,175,80,0.1);
+    padding: 8px 12px;
+    border-radius: 8px;
+    display: inline-block;
+}
+
+/* Textarea size */
+.sell-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Select dropdown better look */
+.sell-form select {
+    cursor: pointer;
+}
+
+/* Harvest Date field fix */
+.sell-form input[type="date"] {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    border: 2px solid var(--lighter-green);
+    border-radius: 12px;
+    font-size: 1rem;
+}
+
+/* Better spacing for file input */
+.sell-form input[type="file"] {
+    width: 100%;
+}
+
+/* Smooth hover for form groups */
+.form-group:hover {
+    transform: translateX(3px);
+    transition: transform 0.2s ease;
+}

@@ -23,7 +23,7 @@ from django.views.generic import DeleteView, UpdateView
 from django.db.models import Avg
 
 class Index(View):
-    API_KEY = "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"
+    API_KEY = "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"
     template_name = "home.html"
 
     def get(self, request):
@@ -479,6 +479,7 @@ class UpdateUser(LoginRequiredMixin, UpdateView):
         return self.request.user.farmer 
     def latlng_former(self, location_name): 
         client = OpenAI( base_url="https://openrouter.ai/api/v1", api_key=Index.API_KEY ) 
+        _isResponse = False
         try: 
             completion = client.chat.completions.create( 
                 model="deepseek/deepseek-r1-distill-qwen-32b", 
@@ -495,26 +496,31 @@ class UpdateUser(LoginRequiredMixin, UpdateView):
             suggestion = completion.choices[0].message.content.split(',') 
         except Exception as e: 
             print(e) 
-            suggestion = "43.2220,76.8512" 
+            suggestion = "43.2220,76.8512"
         return suggestion 
     def form_valid(self, form): 
         response = super().form_valid(form) 
         location = self.request.POST.get("location") 
+        
         if location: 
             lat_lng = self.latlng_former(location_name=location) 
-            if self.object.location: 
-                self.object.location.latitude = float(lat_lng[0]) 
-                self.object.location.longitude = float(lat_lng[1]) 
-                self.object.location.save() 
-                
-            else: 
-                location = Location.objects.create( 
-                    latitude=float(lat_lng[0]), 
-                    longitude=float(lat_lng[1]) 
-                ) 
-                self.object.location = location 
-                self.object.save() 
-                return response
+            
+            # Make sure lat_lng is properly formatted
+            if isinstance(lat_lng, list) and len(lat_lng) >= 2:
+                if self.object.location: 
+                    self.object.location.latitude = float(lat_lng[0].strip()) 
+                    self.object.location.longitude = float(lat_lng[1].strip()) 
+                    self.object.location.save() 
+                else: 
+                    new_location = Location.objects.create( 
+                        latitude=float(lat_lng[0].strip()), 
+                        longitude=float(lat_lng[1].strip()) 
+                    ) 
+                    self.object.location = new_location 
+                    self.object.save() 
+        
+        # Always return the response, regardless of what happened above
+        return response
             
 def iot_dashboard(request):
     city_name = request.POST.get('city_name', 'Almaty')
