@@ -17,7 +17,11 @@
 
             <form method="post">
                 {% csrf_token %}
-                {{form.as_p}}
+                <div class="form-group"><p>Nickname</p>{{form.username}}</div><br>
+                <div class="form-group"><p>E-mail</p>{{form.email}}</div><br>
+                <div class="form-group"><p>Password</p>{{form.password1}}</div><br>
+                <div class="form-group"><p>Confirm Password</p>{{form.password2}}</div><br>
+                <div class="form-group"><p>Full Name</p>{{form.name}}</div><br>
                 <button type="submit" class="primary-btn">Sign Up</button>
             </form>
 

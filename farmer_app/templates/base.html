@@ -13,7 +13,7 @@
     <header>
         <nav>
             <div class="logo">
-                <img src="{% static 'images/icon.png' %}" style="width: 5.8rem" alt="AgriConnect-icon"> AgriConnect
+                <img src="{% static 'images/icon.png' %}" style="width: 5.0rem" alt="AgriConnect-icon"> AgriConnect
             </div>
 
             <div class="search-bar">
@@ -26,6 +26,7 @@
             <div class="nav-links">
                 <a href="{% url 'home' %}"><i class="fas fa-home"></i></a>
                 <a href="{% url 'products' %}"><i class="fas fa-shopping-bag"></i></a>
+                <a href="{% url 'dashboard' %}"><i class="fas fa-notes-medical"></i></a>
 
                 {% if user.is_authenticated %}
                     <a href="{% url 'cart' %}"><i class="fas fa-shopping-cart"></i></a>
@@ -40,7 +41,6 @@
                         <i class="fas fa-user-plus"></i> Sign up
                     </a>
                 {% endif %}
-                <a href="{% url 'dashboard' %}"><i class="fas fa-notes-medical"></i></a>
             </div>
         </nav>
     </header>

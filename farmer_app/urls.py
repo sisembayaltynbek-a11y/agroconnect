@@ -9,6 +9,7 @@ urlpatterns = [
     path('accounts/signup/', views.FarmerSignUpView.as_view(), name='signup'),
     
     path('suggest-price/<str:product_name>', views.ai_price_advisor, name='suggest-price'),
+    path("detection/<int:product_id>/", views.ai_detector, name="detection"),
     path('add-product/', views.AddProductView.as_view(), name='add-product'),
     path('products/', views.products, name='products'),
     path(

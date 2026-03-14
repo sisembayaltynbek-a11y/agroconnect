@@ -37,7 +37,7 @@
                     <form method="post" action="{% url 'increase' item.id %}">
                         {% csrf_token %}
                         <div class="confirmation-buttons">
-                            <button type="submit" class="confirm-btn">
+                            <button type="submit" class="confirm-btn-plus">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
@@ -45,7 +45,7 @@
                     <form method="post" action="{% url 'delete-cart-item' item.id %}">
                         {% csrf_token %}
                         <div class="confirmation-buttons">
-                            <button type="submit" class="confirm-btn">⛔</button>
+                            <button type="submit" class="confirm-btn"><i class="fas fa-trash"></i></button>
                         </div>
                     </form>
                 </div>

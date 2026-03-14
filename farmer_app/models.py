@@ -36,7 +36,6 @@ class Farmer(models.Model):
     )
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
     name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50, blank=True)
     phonenumber = models.CharField(max_length=15, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
     location = models.OneToOneField(Location, on_delete=models.CASCADE, null=True, blank=True)

@@ -23,7 +23,8 @@ from django.views.generic import DeleteView, UpdateView
 from django.db.models import Avg
 
 class Index(View):
-    API_KEY = "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"
+    API_KEY = "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"
+    ai_model = "google/gemini-2.5-pro"
     template_name = "home.html"
 
     def get(self, request):
@@ -110,7 +111,7 @@ class Index(View):
                 "X-Title": "<YOUR_SITE_NAME>",
             },
             extra_body={},
-            model="deepseek/deepseek-r1-distill-qwen-32b",
+            model=self.ai_model,
             messages=[
                 {
                 "role": "user",
@@ -132,7 +133,48 @@ class Index(View):
                 
         print(completion.choices[0].message.content)
         return str(completion.choices[0].message.content)
-    
+
+def ai_detector(request, product_id):
+    product = get_object_or_404(Products, id=product_id)
+    image_path = product.image.path
+    response = None
+
+    client = OpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        api_key=Index.API_KEY
+    )
+
+    try:
+        completion = client.chat.completions.create(
+            model=Index.ai_model,
+            max_tokens=300,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Analyze this plant image. Identify possible disease and suggest treatment."},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": request.build_absolute_uri(image_path)
+                            }
+                        }
+                    ]
+                }
+            ]
+        )
+
+        response = completion.choices[0].message.content
+
+    except Exception:
+        response = "Disease detection unavailable"
+
+    return render(request, "product_details.html", {
+        "product": product,
+        "response": response
+    })
 
 def category_products(request, id):
     category = get_object_or_404(Categories, id=id)
@@ -149,7 +191,7 @@ def ai_price_advisor(request, product_name):
     )
     try:
         completion = client.chat.completions.create(
-            model="deepseek/deepseek-r1-distill-qwen-32b",
+            model=Index.ai_model,
             messages=[
                 {
                     "role": "user",
@@ -192,7 +234,7 @@ class Login(LoginView):
         return reverse_lazy('home')
 
 from django.contrib.auth import login
-from django.contrib.auth import authenticate  # Add this import
+from django.contrib.auth import authenticate
 
 class FarmerSignUpView(FormView):
     template_name = 'account/signup.html'
@@ -224,7 +266,7 @@ class FarmerSignUpView(FormView):
             avatar=form.cleaned_data['avatar'],
             name=form.cleaned_data['name'],
             phonenumber=form.cleaned_data['phonenumber'],
-            address=form.cleaned_data.get('address', ''),
+            address=form.cleaned_data.get('address'),
             location=location
         )
 
@@ -360,7 +402,7 @@ def add_to_cart(request, product_id):
 
     request.session['cart'] = cart
     messages.success(request, f"{product.name} added to cart")
-    return redirect(request.META.get('HTTP_REFERER', 'products'))
+    return redirect(reverse_lazy('cart'))
 
 @login_required
 @require_POST
@@ -482,7 +524,7 @@ class UpdateUser(LoginRequiredMixin, UpdateView):
         _isResponse = False
         try: 
             completion = client.chat.completions.create( 
-                model="deepseek/deepseek-r1-distill-qwen-32b", 
+                model=Index.ai_model,
                 messages=[ { 
                     "role": "user", 
                     "content": f""" 

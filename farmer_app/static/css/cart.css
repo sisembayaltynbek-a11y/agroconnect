@@ -286,7 +286,7 @@
 }
 
 .confirm-btn-plus {
-    background: var(--lighter-green);
+    background: var(--warning);
     color: var(--white);
     border: none;
     width: 40px;
@@ -326,7 +326,7 @@
 }
 
 .confirm-btn {
-    background: var(--danger);
+    background: var(--warning);
     color: var(--white);
     border: none;
     width: 40px;

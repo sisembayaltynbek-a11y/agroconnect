@@ -11,11 +11,23 @@
     <div class="product-images">
         <div class="image-placeholder-large">
             {% if product.image %}
-                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" name="image_url">
             {% else %}
                 <i class="fas fa-seedling"></i>
             {% endif %}
+
         </div><br>
+
+            <div class="disease-detection">
+                <i class="fas fa-disease"></i>
+                <form action="{% url 'detection' product.id %}" method="get">
+                    {% if response %}
+                        <p>{{ response }}</p>
+                    {% endif %}
+                    <button type="submit">Detect diseases</button>
+                </form>
+            </div>
+
             <div class="map-section">
                 <script
                     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5gZ5e_XhZS42P61I0hWTvLSNZ9znLNgθ&callback=initMap"
@@ -117,6 +129,8 @@
         
         <div class="product-actions">
             {% if user.is_authenticated and product.farmer.user != user %}
+
+
                 <form method="post" action="{% url 'add-to-cart' product.id %}" class="add-to-cart-form">
                     {% csrf_token %}
                     <div class="quantity-selector">
