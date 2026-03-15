@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container" style="text-align: center; padding: 50px;">
+    <div class="success-icon" style="font-size: 64px; color: #28a745;">✓</div>
+    <h1>Payment Successful!</h1>
+    <p>Thank you for your purchase. Your order is being processed.</p>
+    <p>A confirmation email has been sent to your inbox.</p>
+    {% if delivery_person %}
+        <p>Your delivery agent <strong>{{ delivery_person.fullname }}</strong> is on the way!</p>
+        <p>Recommendation: {{ delivery_person.recommendation }}</p>
+    {% endif %}
+    <br>
+    <a href="/" class="btn btn-outline-primary">Return to Home</a>
+</div>
+{% endblock %}

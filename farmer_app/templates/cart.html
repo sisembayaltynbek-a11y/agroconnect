@@ -24,15 +24,16 @@
                 
                 <div class="item-info">
                     <h3 class="item-name">{{ item.name }}</h3>
-                    <p class="item-price">₸{{ product.price|floatformat:2 }}</p>
+                    <p class="item-price">₸{{ item.price|floatformat:2 }}</p>
                     <div class="item-quantity">
                         <span>Quantity: {{ item.qty }}</span>
                     </div>
                     
                     <div class="item-total">
-                        Total: ₸<span class="total-amount">{{ item.total }}</span>
+                        Total: ₸<span class="total-amount">{{ item.total|floatformat:2 }}</span>
                     </div>
                 </div>
+
                 <div class="item-actions">
                     <form method="post" action="{% url 'increase' item.id %}">
                         {% csrf_token %}
@@ -45,7 +46,9 @@
                     <form method="post" action="{% url 'delete-cart-item' item.id %}">
                         {% csrf_token %}
                         <div class="confirmation-buttons">
-                            <button type="submit" class="confirm-btn"><i class="fas fa-trash"></i></button>
+                            <button type="submit" class="confirm-btn">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -57,15 +60,14 @@
         <div class="summary-details">
             <div class="summary-row">
                 <span>Subtotal</span>
-                <span>₸{{ subtotal|default:"0.00" }}</span>
+                <span>₸{{ subtotal|floatformat:2 }}</span>
             </div>
             <div class="summary-row">
-                <span>Shipping</span>
-                <span>₸0.00</span>
-            </div>
+                <span>Shipping (Standard)</span>
+                <span>₸500.00</span> </div>
             <div class="summary-row total">
                 <span>Total</span>
-                <span class="grand-total">₸{{ total|default:"0.00" }}</span>
+                <span class="grand-total">₸{{ subtotal|add:500|floatformat:2 }}</span>
             </div>
         </div>
         
@@ -73,9 +75,13 @@
             <a href="{% url 'products' %}" class="continue-shopping">
                 <i class="fas fa-arrow-left"></i> Continue Shopping
             </a>
-            <button class="checkout-btn">
-                <i class="fas fa-lock"></i> Proceed to Checkout
-            </button>
+
+            <form action="{% url 'create_checkout_session' %}" method="POST" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="checkout-btn">
+                    <i class="fas fa-lock"></i> Proceed to Checkout
+                </button>
+            </form>
         </div>
     </div>
     {% else %}
@@ -87,4 +93,14 @@
     </div>
     {% endif %}
 </div>
+
+<script>
+    const checkoutBtn = document.querySelector('.checkout-btn');
+    if (checkoutBtn) {
+        checkoutBtn.closest('form').addEventListener('submit', function() {
+            checkoutBtn.disabled = true;
+            checkoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        });
+    }
+</script>
 {% endblock %}

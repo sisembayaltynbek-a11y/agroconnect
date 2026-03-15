@@ -27,6 +27,7 @@
                 <a href="{% url 'home' %}"><i class="fas fa-home"></i></a>
                 <a href="{% url 'products' %}"><i class="fas fa-shopping-bag"></i></a>
                 <a href="{% url 'dashboard' %}"><i class="fas fa-notes-medical"></i></a>
+                <a href="{% url 'subsidy' %}"><i class="fas fa-user-injured"></i></a>
 
                 {% if user.is_authenticated %}
                     <a href="{% url 'cart' %}"><i class="fas fa-shopping-cart"></i></a>

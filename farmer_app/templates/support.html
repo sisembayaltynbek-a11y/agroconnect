@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Farmer Support - AgroConnect</title>
+        <style>
+            :root {
+                --primary-green: #2e7d32;
+                --accent-gold: #fbc02d;
+                --light-gray: #f4f7f6;
+                --dark-text: #333;
+            }
+
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: var(--light-gray);
+                color: var(--dark-text);
+                line-height: 1.6;
+                margin: 0;
+                padding: 20px;
+            }
+
+            .container {
+                max-width: 1000px;
+                margin: 0 auto;
+                background: #fff;
+                padding: 30px;
+                border-radius: 12px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            }
+
+            h1 {
+                color: var(--primary-green);
+                border-bottom: 3px solid var(--accent-gold);
+                display: inline-block;
+                margin-bottom: 30px;
+            }
+
+            .portal-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+                margin-bottom: 40px;
+            }
+
+            .portal-card {
+                background: #fff;
+                border: 1px solid #ddd;
+                padding: 20px;
+                border-radius: 8px;
+                text-align: center;
+                transition: transform 0.2s;
+            }
+
+            .portal-card:hover {
+                transform: translateY(-5px);
+                border-color: var(--primary-green);
+            }
+
+            .btn-link {
+                display: inline-block;
+                margin-top: 15px;
+                padding: 10px 20px;
+                background-color: var(--primary-green);
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+                font-weight: bold;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+
+            th {
+                background-color: var(--primary-green);
+                color: white;
+                text-align: left;
+                padding: 12px;
+            }
+
+            td {
+                padding: 12px;
+                border-bottom: 1px solid #eee;
+            }
+
+            tr:hover {
+                background-color: #f9f9f9;
+            }
+
+            .badge {
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 0.85em;
+                font-weight: bold;
+            }
+
+            .badge-crop { background: #e8f5e9; color: #2e7d32; }
+            .badge-live { background: #fff3e0; color: #ef6c00; }
+            .badge-tech { background: #e3f2fd; color: #1565c0; }
+        </style>
+    </head>
+
+    <div class="container">
+        <h1>State Support for Farmers 2026</h1>
+        <p>Official digital platforms for applying for agricultural subsidies and soft loans in Kazakhstan.</p>
+
+        <div class="portal-grid">
+            <div class="portal-card">
+                <h3>Gosagro.kz</h3>
+                <p>Main system for crop subsidies, fertilizers, and pesticides.</p>
+                <a href="https://gosagro.kz" target="_blank" class="btn-link">Open Gosagro</a>
+            </div>
+            <div class="portal-card">
+                <h3>Qoldau.kz</h3>
+                <p>Platform for fuel quotas, insurance, and grain monitoring.</p>
+                <a href="https://www.qoldau.kz" target="_blank" class="btn-link">Open Qoldau</a>
+            </div>
+            <div class="portal-card">
+                <h3>Agrarian Credit Corp</h3>
+                <p>Apply for "Ken Dala 2" soft loans at 5-6% rates.</p>
+                <a href="https://www.agrocredit.kz" target="_blank" class="btn-link">Visit ACC</a>
+            </div>
+        </div>
+
+        <h3>Current Subsidy Programs</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Subsidy Type</th>
+                    <th>Standard Rate / Support</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="badge badge-crop">Crops</span></td>
+                    <td>Fertilizers (Organic/Inorganic)</td>
+                    <td>Up to 50% of cost reimbursement</td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-crop">Crops</span></td>
+                    <td>Seed Production (Elite seeds)</td>
+                    <td>70% reimbursement of purchase cost</td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-live">Livestock</span></td>
+                    <td>Breeding Bulls (Acquisition)</td>
+                    <td>150,000 - 300,000 ₸ per head</td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-live">Livestock</span></td>
+                    <td>Milk Production</td>
+                    <td>20 - 45 ₸ per kilogram produced</td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-tech">Technical</span></td>
+                    <td>Machinery Leasing</td>
+                    <td>Investment subsidies up to 25-30%</td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-tech">Resources</span></td>
+                    <td>Irrigation Water</td>
+                    <td>Reimbursement of 60% to 85% of tariffs</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p style="margin-top: 25px; font-size: 0.9em; color: #666;">
+            *Note: To apply, farmers must have a valid <strong>EDS (Electronic Digital Signature)</strong> and be registered in the "Waiting List" if funds are currently depleted.
+        </p>
+    </div>
+{% endblock %}

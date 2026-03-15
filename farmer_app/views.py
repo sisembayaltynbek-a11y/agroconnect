@@ -22,6 +22,14 @@ from .forms import AddFarmProduct, FarmerSignUpForm
 from django.views.generic import DeleteView, UpdateView
 from django.db.models import Avg
 
+import random
+import stripe
+from django.conf import settings
+from django.shortcuts import redirect, render
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+
+
 class Index(View):
     API_KEY = "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"
     ai_model = "google/gemini-2.5-pro"
@@ -288,6 +296,8 @@ class FarmerSignUpView(FormView):
 class Logout(LogoutView):
     template_name = 'account/logout.html'
 
+def subsidy_page(request):
+    return render(request, 'support.html')
 
 def products(request):
     products_list = Products.objects.all()
@@ -403,6 +413,71 @@ def add_to_cart(request, product_id):
     request.session['cart'] = cart
     messages.success(request, f"{product.name} added to cart")
     return redirect(reverse_lazy('cart'))
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+@login_required
+def create_checkout_session(request):
+    cart = request.session.get('cart', {})
+    if not cart:
+        return redirect('cart')
+
+    available_deliveries = Deliveries.objects.all()
+    if available_deliveries.exists():
+        selected_delivery = random.choice(available_deliveries)
+        request.session['assigned_delivery_id'] = selected_delivery.id
+    
+    DELIVERY_FEE_KZT = 500 
+    
+    line_items = []
+    
+    for pid, item in cart.items():
+        unit_amount = int(float(item['price']) * 100)
+        line_items.append({
+            'price_data': {
+                'currency': 'kzt',
+                'product_data': {'name': item['name']},
+                'unit_amount': unit_amount,
+            },
+            'quantity': item['qty'],
+        })
+
+    line_items.append({
+        'price_data': {
+            'currency': 'kzt',
+            'product_data': {
+                'name': 'Delivery Fee',
+                'description': 'Flat rate shipping to your location',
+            },
+            'unit_amount': DELIVERY_FEE_KZT * 100,
+        },
+        'quantity': 1,
+    })
+
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=line_items,
+            mode='payment',
+            success_url=request.build_absolute_uri(reverse('payment_success')),
+            cancel_url=request.build_absolute_uri(reverse('cart')),
+        )
+        return redirect(checkout_session.url, code=303)
+    except Exception as e:
+        return render(request, 'error.html', {'error': str(e)})
+    
+@login_required
+def payment_success(request):
+    delivery_id = request.session.get('assigned_delivery_id')
+    delivery_person = None
+    
+    if delivery_id:
+        delivery_person = Deliveries.objects.get(id=delivery_id)
+    
+    if 'cart' in request.session:
+        del request.session['cart']
+        
+    return render(request, 'success.html', {'delivery_person': delivery_person})
 
 @login_required
 @require_POST

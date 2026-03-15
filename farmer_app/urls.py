@@ -32,5 +32,9 @@ urlpatterns = [
     path('posts/update/<int:pk>/', views.UpdatePost.as_view(), name="update-page"),
     path('posts/user_update/<int:pk>/', views.UpdateUser.as_view(), name="update-page-user"),
 
-    path('dashboard/', views.iot_dashboard, name='dashboard')
+    path('dashboard/', views.iot_dashboard, name='dashboard'),
+
+    path('checkout/', views.create_checkout_session, name='create_checkout_session'),
+    path('success/', views.payment_success, name='payment_success'),
+    path('subsidy-kaz/', views.subsidy_page, name='subsidy')
 ]
