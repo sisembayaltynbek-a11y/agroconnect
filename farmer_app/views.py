@@ -37,17 +37,11 @@ class Index(View):
     template_name = "home.html"
 
     def get(self, request):
-        categories = Categories.objects.all()
-        cheap_products = Products.objects.filter(price__lt=Decimal('700.00'))[:8]
-        popular_products = Products.objects.all().order_by('-id')[:8] 
-        staged_deliveries = Deliveries.objects.filter(working_stage__gte=3)
-        # planting_areas = self.ai_best_planting()
-        
         return render(request, self.template_name, {
-            'categories': categories,
-            'deliveries': staged_deliveries,
-            'popular_products': popular_products,
-            'cheap_products': cheap_products, # Renamed for clarity
+            'categories': Categories.objects.all(),
+            'deliveries': Deliveries.objects.filter(working_stage__gte=3),
+            'popular_products': Products.objects.all().order_by('-id')[:8],
+            'cheap_products': Products.objects.filter(price__lt=Decimal('700.00'))[:8],
             # 'planting_areas': planting_areas,
             'ai_response': None,
         })
@@ -55,20 +49,15 @@ class Index(View):
     def post(self, request):
         user_input = request.POST.get("user_input", "")
         # planting_areas = self.ai_best_planting()
-        ai_response = self.get_response(user_input)
-        categories = Categories.objects.all()
-        staged_deliveries = Deliveries.objects.filter(working_stage__gte=3)
-        cheap_products = Products.objects.filter(price__lt=Decimal('500.00'))[:8]
-        popular_products = Products.objects.all().order_by('-id')[:8]
         
         return render(request, self.template_name, {
-            'categories': categories,
-            'deliveries': staged_deliveries,
-            'popular_products': popular_products,
-            'cheap_products': cheap_products,
+            'categories': Categories.objects.all(),
+            'deliveries': Deliveries.objects.filter(working_stage__gte=3),
+            'popular_products': Products.objects.all().order_by('-id')[:8],
+            'cheap_products': Products.objects.filter(price__lt=Decimal('500.00'))[:8],
             # 'planting_areas': planting_areas,
-            'ai_response': ai_response,
-            'user_input': user_input,
+            'ai_response': self.get_response(user_input),
+            'user_input': user_input
         })
 
     # def ai_best_planting(self):
