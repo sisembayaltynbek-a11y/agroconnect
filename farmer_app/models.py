@@ -46,7 +46,7 @@ class Farmer(models.Model):
     )
 
     def __str__(self):
-        return f"{self.name} {self.last_name}"    
+        return f"{self.name}"    
 
 class Products(models.Model):
     image = models.ImageField(upload_to="products/", null=True, blank=True)

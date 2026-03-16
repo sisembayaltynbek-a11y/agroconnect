@@ -31,8 +31,8 @@ from django.urls import reverse
 
 
 class Index(View):
-    API_KEY = "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"
-    ai_model = "google/gemini-2.5-pro"
+    API_KEY = "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"
+    ai_model = "google/gemma-3n-e2b-it:free"
     template_name = "home.html"
 
     def get(self, request):
