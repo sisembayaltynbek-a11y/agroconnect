@@ -129,7 +129,13 @@
         
         <div class="product-actions">
             {% if user.is_authenticated and product.farmer.user != user %}
-
+                <form method="POST" action="{% url 'toggle-like' product.id %}" class="like-form">
+                    {% csrf_token %}
+                    <button class="like-btn {% if product in user.seller.liked_products.all %}liked{% endif %}">
+                        <i class="{% if product in user.seller.liked_products.all %}fas{% else %}far{% endif %} fa-heart"></i>
+                    </button>
+                    <span class="likes-count">{{ likes_count }}</span>
+                </form>
 
                 <form method="post" action="{% url 'add-to-cart' product.id %}" class="add-to-cart-form">
                     {% csrf_token %}
@@ -140,15 +146,6 @@
                     <button type="submit" class="add-to-cart-btn-large">
                          Add to Cart
                     </button>
-                </form>
-            
-
-                <form method="POST" action="{% url 'toggle-like' product.id %}" class="like-form">
-                    {% csrf_token %}
-                    <button class="like-btn {% if product in user.seller.liked_products.all %}liked{% endif %}">
-                        <i class="{% if product in user.seller.liked_products.all %}fas{% else %}far{% endif %} fa-heart"></i>
-                    </button>
-                    <span class="likes-count">{{ likes_count }}</span>
                 </form>
             {% endif %}
         </div>

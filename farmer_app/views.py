@@ -24,6 +24,7 @@ from django.db.models import Avg
 
 import random
 import stripe
+import os
 from django.conf import settings
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
@@ -31,7 +32,7 @@ from django.urls import reverse
 
 
 class Index(View):
-    API_KEY = "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"
+    API_KEY = os.getenv('OPENROUTER_API_KEY')
     ai_model = "google/gemma-3n-e2b-it:free"
     template_name = "home.html"
 
@@ -641,7 +642,6 @@ class UpdateUser(LoginRequiredMixin, UpdateView):
             
 def iot_dashboard(request):
     city_name = request.POST.get('city_name', 'Almaty')
-
     url = f"https://api.openweathermap.org/data/2.5/forecast?q={city_name}&appid=89c57e8dfcd68a00c8b51ce244feff28&units=metric"
     response = requests.get(url)
     data = response.json()
