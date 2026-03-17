@@ -28,12 +28,14 @@
         <div class="product-footer">
             <div class="price">₸{{ product.price|floatformat:2 }}</div>
             
-            <form method="post" action="{% url 'add-to-cart' product.id %}">
-                {% csrf_token %}
-                <button type="submit" class="add-to-cart-btn">
-                    <i class="fas fa-cart-plus"></i> Add to Cart
-                </button>
-            </form>
+            {% if user.is_authenticated and product.farmer.buyer.user != user %}
+                <form method="post" action="{% url 'add-to-cart' product.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="add-to-cart-btn">
+                        <i class="fas fa-cart-plus"></i> Add to Cart
+                    </button>
+                </form>
+            {% endif %}
             
             <a href="{% url 'product-details' product.slug %}" class="view-details">
                 View Details <i class="fas fa-arrow-right"></i>

@@ -349,6 +349,7 @@ def product_details(request, slug):
         return redirect("product-details", slug=slug)
 
     return render(request, "product_details.html", {
+        "buyer": buyer,
         "product": product,
         "feedbacks": feedbacks,
         "can_give_feedback": can_give_feedback,

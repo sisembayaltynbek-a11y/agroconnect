@@ -166,7 +166,7 @@
             {% if feedbacks %}
                 {% for feedback in feedbacks %}
                     <div class="feedback-card">
-                        <strong>{{ feedback.farmer.name }}</strong>
+                        <strong>{{ feedback.buyer.name }}</strong>
                         <div class="feedback-rating">
                             {% for i in "12345" %}
                                 <i class="{% if forloop.counter <= feedback.rating %}fas{% else %}far{% endif %} fa-star"></i>
@@ -178,28 +178,29 @@
             {% else %}
                 <p>No feedback yet.</p>
             {% endif %}<br>
-            {% if user.is_authenticated and can_give_feedback %} 
-                <div class="feedback-form"> 
-                    <h3>Leave a Review</h3> 
-                    <form method="post"> 
-                        {% csrf_token %} 
-                        <label for="rating">Rating</label> 
-                        <select name="rating" id="rating" required> 
-                            <option value="5">★★★★★ (5)</option> 
-                            <option value="4">★★★★☆ (4)</option> 
-                            <option value="3">★★★☆☆ (3)</option> 
-                            <option value="2">★★☆☆☆ (2)</option> 
-                            <option value="1">★☆☆☆☆ (1)</option> 
-                        </select> 
-                        <label for="comment">Comment</label> 
-                        <textarea name="comment" id="comment" rows="4" required placeholder="Share your experience..."></textarea> 
-                        <button type="submit" class="submit-feedback-btn"> Send </button> 
-                    </form> 
-                </div> 
-            {% elif user.is_authenticated %} 
-                {% if product.farmer.user == user %} 
+            {% if user.is_authenticated %}
+                {% if product.farmer.buyer.user != user and can_give_feedback %}
+                    <div class="feedback-form"> 
+                        <h3>Leave a Review</h3> 
+                        <form method="post"> 
+                            {% csrf_token %} 
+                            <label for="rating">Rating</label> 
+                            <select name="rating" id="rating" required> 
+                                <option value="5">★★★★★ (5)</option> 
+                                <option value="4">★★★★☆ (4)</option> 
+                                <option value="3">★★★☆☆ (3)</option> 
+                                <option value="2">★★☆☆☆ (2)</option> 
+                                <option value="1">★☆☆☆☆ (1)</option> 
+                            </select> 
+                            <label for="comment">Comment</label> 
+                            <textarea name="comment" id="comment" rows="4" required placeholder="Share your experience..."></textarea> 
+                            <button type="submit" class="submit-feedback-btn"> Send </button> 
+                        </form> 
+                    </div> 
+                {% elif product.farmer.user == user %} 
                     <p class="already-reviewed"> You cannot leave feedback on your own product. </p> 
-                {% else %} <p class="already-reviewed"> You already left feedback for this product ✅ </p> 
+                {% else %} 
+                    <p class="already-reviewed"> You already left feedback for this product ✅ </p> 
                 {% endif %} 
             {% else %} 
                 <p class="login-required"> 

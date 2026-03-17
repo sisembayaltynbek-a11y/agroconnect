@@ -21,15 +21,18 @@
 ```
 <!-- Quick Stats -->
 <div class="quick-stats">
-    <div class="stat-card">
-        <div class="stat-icon" style="background: #e3f2fd;">
-            <i class="fas fa-box" style="color: #1976d2;"></i>
+    {% if farmer %}
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #e3f2fd;">
+                <i class="fas fa-box" style="color: #1976d2;"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ products.count }}</h3>
+                <p>Total Products</p>
+            </div>
         </div>
-        <div class="stat-info">
-            <h3>{{ products.count }}</h3>
-            <p>Total Products</p>
-        </div>
-    </div>
+    {% endif %}
+
     <div class="stat-card">
         <div class="stat-icon" style="background: #f3e5f5;">
             <i class="fas fa-heart" style="color: #7b1fa2;"></i>
@@ -100,14 +103,14 @@
                 {% endwith %}
 
                 <div class="info-grid">
-                    <div class="info-item">
-                        <i class="fas fa-phone"></i>
-                        <div>
-                            <small>Phone</small>
-                            <p>{{ farmer.phonenumber|default:"Not provided" }}</p>
+                    {% if farmer %}
+                        <div class="info-item">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <small>Phone</small>
+                                <p>{{ farmer.phonenumber|default:"Not provided" }}</p>
+                            </div>
                         </div>
-                    </div>
-                    {% if farmer and farmer.address %}
                         <div class="info-item">
                             <i class="fas fa-map-marker-alt"></i>
                             <div>
