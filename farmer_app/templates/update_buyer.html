@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/update.css' %}">
+{% endblock %}
+{% block content %}
+    {% if buyer %}
+        <section id="update-profile">
+            <header>
+                <h2>Update Buyer Profile</h2>
+                <p>Edit your profile details below and click <strong>Save Changes</strong>.</p>
+            </header>
+
+            <form action="{% url 'update-page-buyer' buyer.id %}" method="POST" enctype="multipart/form-data" class="update-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+
+                <button type="submit" class="btn-save">Save</button>
+            </form>
+        </section>
+    {% endif %}
+{% endblock %}

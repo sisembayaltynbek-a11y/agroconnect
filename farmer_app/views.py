@@ -1,6 +1,6 @@
 from decimal import Decimal
 import json
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -16,8 +16,9 @@ from django.contrib.auth.models import User
 from openai import OpenAI
 import requests
 
-from .models import Deliveries, Location, Products, Categories, Farmer, Feedback
-from .forms import AddFarmProduct, FarmerSignUpForm
+from .models import Buyer, Deliveries, Location, Products, Categories, Farmer, Feedback
+from .forms import AddFarmProduct, BuyerSignUpForm, FarmerSignUpForm
+from django.utils.decorators import method_decorator
 
 from django.views.generic import DeleteView, UpdateView
 from django.db.models import Avg
@@ -134,7 +135,7 @@ class Index(View):
 
 def ai_detector(request, product_id):
     product = get_object_or_404(Products, id=product_id)
-    image_path = product.image.path
+    image_path = request.build_absolute_uri(product.image.url)
     response = None
 
     client = OpenAI(
@@ -156,7 +157,7 @@ def ai_detector(request, product_id):
                         {
                             "type": "image_url",
                             "image_url": {
-                                "url": request.build_absolute_uri(image_path)
+                                "url": image_path
                             }
                         }
                     ]
@@ -210,21 +211,21 @@ def ai_price_advisor(request, product_name):
 class AddProductView(LoginRequiredMixin, CreateView):
     model = Products
     form_class = AddFarmProduct
-    template_name = 'sell.html'
-    success_url = reverse_lazy('home')
+    template_name = "sell.html"
+    success_url = reverse_lazy("home")
 
     def form_valid(self, form):
-        farmer, _ = Farmer.objects.get_or_create(
-            user=self.request.user,
-            defaults={
-                'name': self.request.user.username,
-                'phonenumber': 'Not provided'
-            }
-        )
+        buyer = getattr(self.request.user, "buyer", None)
+        if not buyer:
+            messages.error(self.request, "You need a buyer profile first.")
+            return redirect("home")
+        farmer = getattr(buyer, "farmer", None)
+        if not farmer:
+            messages.error(self.request, "You must become a farmer to sell.")
+            return redirect("become-farmer")
         form.instance.farmer = farmer
-        messages.success(self.request, "Product added successfully!")
         return super().form_valid(form)
-
+    
 class Login(LoginView):
     template_name = 'account/login.html'
 
@@ -234,19 +235,45 @@ class Login(LoginView):
 from django.contrib.auth import login
 from django.contrib.auth import authenticate
 
-class FarmerSignUpView(FormView):
-    template_name = 'account/signup.html'
-    form_class = FarmerSignUpForm
-    success_url = reverse_lazy('home')
+class BuyerSignUpView(FormView):
+    template_name = "account/signup.html"
+    form_class = BuyerSignUpForm
+    success_url = reverse_lazy("home")
 
     @transaction.atomic
     def form_valid(self, form):
-        # Create user
+
         user = User.objects.create_user(
-            username=form.cleaned_data['username'],
-            email=form.cleaned_data['email'],
-            password=form.cleaned_data['password1'],
+            username=form.cleaned_data["username"],
+            email=form.cleaned_data["email"],
+            password=form.cleaned_data["password1"],
         )
+
+        Buyer.objects.create(
+            user=user,
+            avatar=form.cleaned_data["avatar"],
+            name=form.cleaned_data["name"],
+        )
+
+        user = authenticate(
+            self.request,
+            username=form.cleaned_data["username"],
+            password=form.cleaned_data["password1"]
+        )
+
+        if user is not None:
+            login(self.request, user)
+
+        return redirect(self.success_url)
+    
+class BecomeFarmerView(LoginRequiredMixin, FormView):
+    template_name = "account/become_farmer.html"
+    form_class = FarmerSignUpForm
+    success_url = reverse_lazy("profile")
+
+    def form_valid(self, form):
+
+        buyer = getattr(self.request.user, "buyer", None)
 
         latitude = form.cleaned_data.get("latitude")
         longitude = form.cleaned_data.get("longitude")
@@ -258,31 +285,17 @@ class FarmerSignUpView(FormView):
                 longitude=longitude
             )
 
-        # Create farmer profile
-        Farmer.objects.create(
-            user=user,
-            avatar=form.cleaned_data['avatar'],
-            name=form.cleaned_data['name'],
-            phonenumber=form.cleaned_data['phonenumber'],
-            address=form.cleaned_data.get('address'),
-            location=location
+        Farmer.objects.create(  
+            buyer=buyer,
+            phonenumber=form.cleaned_data["phonenumber"],
+            address=form.cleaned_data["address"],
+            location=location,
         )
 
-        # First authenticate the user
-        user = authenticate(
-            username=form.cleaned_data['username'],
-            password=form.cleaned_data['password1']
-        )
-        
-        # Then log them in
-        if user is not None:
-            login(self.request, user)
-        else:
-            # If authentication fails, still redirect but show a message
-            messages.warning(self.request, "Account created but automatic login failed. Please log in manually.")
-        
+        messages.success(self.request, "You are now a farmer!")
+
         return redirect(self.success_url)
-        
+            
 class Logout(LogoutView):
     template_name = 'account/logout.html'
 
@@ -303,44 +316,40 @@ def ai_recommend_products(product):
 
 def product_details(request, slug):
     product = get_object_or_404(Products, slug=slug)
-    recommended_products = ai_recommend_products(product)
-    feedbacks = product.received_feedbacks.select_related('farmer').order_by('-created_at')
+    feedbacks = product.received_feedbacks.select_related('buyer').order_by('-created_at')
 
+    buyer = None
     can_give_feedback = False
     is_liked = False
-    farmer = None
 
-    if request.user.is_authenticated and hasattr(request.user, 'farmer'):
-        farmer = request.user.farmer
-
-        is_liked = farmer.liked_products.filter(id=product.id).exists()
-
-        if farmer != product.farmer:
+    if request.user.is_authenticated:
+        buyer = getattr(request.user, "buyer", None)
+        if buyer:
+            is_liked = buyer.liked_products.filter(id=product.id).exists()
             already_reviewed = Feedback.objects.filter(
-                farmer=farmer,
+                buyer=buyer,
                 product=product
             ).exists()
-
             can_give_feedback = not already_reviewed
+        else:
+            is_liked = False
+            can_give_feedback = False
 
-    # ✅ HANDLE FEEDBACK SUBMISSION
-    if request.method == "POST" and farmer and can_give_feedback:
+    if request.method == "POST" and buyer and can_give_feedback:
         rating = request.POST.get("rating")
         comment = request.POST.get("comment")
 
         Feedback.objects.create(
-            farmer=farmer,
+            buyer=buyer,
             product=product,
             rating=rating,
             comment=comment
         )
-
         messages.success(request, "Thank you for your feedback!")
         return redirect("product-details", slug=slug)
 
     return render(request, "product_details.html", {
         "product": product,
-        "recommended_products": recommended_products,
         "feedbacks": feedbacks,
         "can_give_feedback": can_give_feedback,
         "is_liked": is_liked,
@@ -484,19 +493,18 @@ def increase_quantity(request, product_id):
 
 
 @login_required
-@require_POST
 def toggle_like(request, product_id):
     product = get_object_or_404(Products, id=product_id)
-    farmer = request.user.farmer
-
-    if farmer.liked_products.filter(id=product.id).exists():
-        farmer.liked_products.remove(product)
+    buyer = getattr(request.user, "buyer", None)
+    if not buyer:
+        messages.error(request, "You must have a buyer account to like products.")
+        return redirect("login")
+    if buyer.liked_products.filter(id=product.id).exists():
+        buyer.liked_products.remove(product)
     else:
-        farmer.liked_products.add(product)
+        buyer.liked_products.add(product)
+    return redirect(request.META.get("HTTP_REFERER", "products"))
 
-    return redirect(request.META.get('HTTP_REFERER', 'products'))
-
-# ADD THIS FUNCTION-BASED VIEW FOR DELETING CART ITEMS
 def delete_cart_item(request, pk):
     """Delete an item from the cart"""
     cart = request.session.get('cart', {})
@@ -531,59 +539,93 @@ def delete_cart_item(request, pk):
 
 @login_required
 def profile(request):
-    farmer, created = Farmer.objects.get_or_create(
-        user=request.user,
-        defaults={'name': request.user.username, 'phonenumber': 'Not provided'}
-    )
-
-    products = Products.objects.filter(farmer=farmer)
-
+    buyer = getattr(request.user, "buyer", None)
+    if not buyer:
+        return render(request, "profile.html", {
+            "buyer": None,
+            "farmer": None,
+            "products": [],
+            "average_rate": "No data"
+        })
+    
+    farmer = getattr(buyer, "farmer", None)
+    products = Products.objects.filter(farmer=farmer) if farmer else []
     average_rate = Feedback.objects.filter(
-        product__in=products
+        product__farmer=farmer
     ).aggregate(avg=Avg('rating'))['avg']
 
-    average_rate = round(average_rate or 0, 2)
+    return render(request, "profile.html", {
+        "buyer": buyer,
+        "farmer": farmer,
+        "products": products,
+        "average_rate": round(average_rate, 1) if average_rate else "No ratings"
+    })
 
-    context = {
-        'farmer': farmer,
-        'products': products,
-        'average_rate': average_rate,
-    }
-
-    return render(request, 'profile.html', context)
-
+@login_required
 def delete_self_published(request, product_id):
-    try:
-        farmer = Farmer.objects.get(user=request.user)
-        product = get_object_or_404(Products, id=product_id)
+    buyer = getattr(request.user, "buyer", None)
+    farmer = getattr(buyer, "farmer", None)
+    product = get_object_or_404(Products, id=product_id)
 
-        if product.farmer != farmer:
-            messages.error(request, "You can only delete your own products!")
-            return redirect('profile')
-        
-        product_name = product.name
-        product.delete()
-        
-        messages.success(request, f"Product '{product_name}' has been deleted successfully!")
-    
-    except Products.DoesNotExist:
-        messages.error(request, "Product not found!")
-    
-    return redirect('profile') 
+    if not farmer:
+        messages.error(request, "Farmer profile not found.")
+        return redirect("profile")
 
-class UpdatePost(UpdateView):
+    if product.farmer != farmer:
+        messages.error(request, "You can only delete your own products!")
+        return redirect("profile")
+
+    product.delete()
+    messages.success(request, "Product deleted!")
+    return redirect("profile")
+
+def choose_page(request):
+    buyer = getattr(request.user, "buyer", None)
+    farmer = getattr(buyer, "farmer", None)
+    return render(request, 'choice.html', {
+        'buyer': buyer,
+        'farmer': farmer,
+    })
+
+class UpdatePost(LoginRequiredMixin, UpdateView):
     model = Products
     fields = ['image', 'name', 'price', 'excerpt', 'description', 'category']
     template_name = 'update.html'
     success_url = reverse_lazy('products')
+    def get_queryset(self):
+        buyer = getattr(self.request.user, "buyer", None)
+        farmer = getattr(buyer, "farmer", None)
+        if farmer:
+            return Products.objects.filter(farmer=farmer)
+        return Products.objects.none()
 
-class UpdateUser(LoginRequiredMixin, UpdateView): 
-    model = Farmer 
-    fields = ['avatar', 'phonenumber', 'address']
-    template_name = 'update.html' 
-    success_url = reverse_lazy('profile') 
-    def get_object(self): 
-        return self.request.user.farmer 
+class UpdateBuyer(LoginRequiredMixin, UpdateView):
+    model = Buyer
+    fields = ['name', 'avatar']
+    template_name = 'update_buyer.html'
+    success_url = reverse_lazy('update-page-buyer')  # redirect after success
+
+    def get_object(self):
+        buyer = getattr(self.request.user, "buyer", None)
+        if not buyer:
+            raise Http404("Buyer profile not found")
+        return buyer
+
+class UpdateFarmer(LoginRequiredMixin, UpdateView):
+    model = Farmer
+    fields = ['phonenumber', 'address']
+    template_name = 'update.html'
+    success_url = reverse_lazy('profile')
+
+    def get_object(self):
+        buyer = getattr(self.request.user, "buyer", None)
+        if not buyer:
+            raise Http404("Buyer profile not found")
+        farmer = getattr(buyer, "farmer", None)
+        if not farmer:
+            raise Http404("Farmer profile not found")
+        return farmer
+    
     def latlng_former(self, location_name): 
         client = OpenAI( base_url="https://openrouter.ai/api/v1", api_key=Index.API_KEY ) 
         _isResponse = False
@@ -605,28 +647,24 @@ class UpdateUser(LoginRequiredMixin, UpdateView):
             print(e) 
             suggestion = "43.2220,76.8512"
         return suggestion 
-    def form_valid(self, form): 
-        response = super().form_valid(form) 
-        location = self.request.POST.get("location") 
-        
-        if location: 
-            lat_lng = self.latlng_former(location_name=location) 
-            
-            # Make sure lat_lng is properly formatted
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        location_name = self.request.POST.get("location")
+        if location_name:
+            lat_lng = self.latlng_former(location_name)
             if isinstance(lat_lng, list) and len(lat_lng) >= 2:
-                if self.object.location: 
-                    self.object.location.latitude = float(lat_lng[0].strip()) 
-                    self.object.location.longitude = float(lat_lng[1].strip()) 
-                    self.object.location.save() 
-                else: 
-                    new_location = Location.objects.create( 
-                        latitude=float(lat_lng[0].strip()), 
-                        longitude=float(lat_lng[1].strip()) 
-                    ) 
-                    self.object.location = new_location 
-                    self.object.save() 
-        
-        # Always return the response, regardless of what happened above
+                if self.object.location:
+                    self.object.location.latitude = float(lat_lng[0].strip())
+                    self.object.location.longitude = float(lat_lng[1].strip())
+                    self.object.location.save()
+                else:
+                    new_location = Location.objects.create(
+                        latitude=float(lat_lng[0].strip()),
+                        longitude=float(lat_lng[1].strip())
+                    )
+                    self.object.location = new_location
+                    self.object.save()
         return response
             
 def iot_dashboard(request):

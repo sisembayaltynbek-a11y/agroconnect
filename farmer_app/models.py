@@ -29,16 +29,10 @@ class Location(models.Model):
     def __str__(self):
         return f"{self.latitude}, {self.longitude}"
 
-class Farmer(models.Model):
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
-    )
+class Buyer(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
     name = models.CharField(max_length=50)
-    phonenumber = models.CharField(max_length=15, blank=True)
-    address = models.CharField(max_length=255, null=True, blank=True)
-    location = models.OneToOneField(Location, on_delete=models.CASCADE, null=True, blank=True)
     liked_products = models.ManyToManyField(
         'Products',
         blank=True,
@@ -46,13 +40,23 @@ class Farmer(models.Model):
     )
 
     def __str__(self):
-        return f"{self.name}"    
+        return self.name
+
+class Farmer(models.Model):
+    buyer = models.OneToOneField(Buyer, on_delete=models.CASCADE)
+    phonenumber = models.CharField(max_length=15, blank=True)
+    address = models.CharField(max_length=255, blank=True, null=True)
+    location = models.OneToOneField(Location, on_delete=models.CASCADE, null=True, blank=True)
+    license = models.ImageField(upload_to='licenses/', blank=True, null=True)
+
+    def __str__(self):
+        return self.buyer.name
 
 class Products(models.Model):
     image = models.ImageField(upload_to="products/", null=True, blank=True)
     farmer = models.ForeignKey(Farmer, on_delete=models.CASCADE)
     name = models.CharField(max_length=120)
-    slug = AutoSlugField(populate_from='name', unique=True)
+    slug = AutoSlugField(populate_from='name', unique=True, always_update=False)
     price = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -67,26 +71,16 @@ class Products(models.Model):
         return self.name
     
 class Feedback(models.Model):
-    farmer = models.ForeignKey(
-        Farmer,
-        on_delete=models.CASCADE,
-        related_name='given_feedbacks'
-    )
-    product = models.ForeignKey(
-        Products,
-        on_delete=models.CASCADE,
-        related_name='received_feedbacks'
-    )
+    buyer = models.ForeignKey(Buyer, on_delete=models.CASCADE, related_name='given_feedbacks')
+    product = models.ForeignKey(Products, on_delete=models.CASCADE, related_name='received_feedbacks')
     rating = models.IntegerField(
-        choices=[(1, '1 Star'), (2, '2 Stars'), (3, '3 Stars'), 
-                 (4, '4 Stars'), (5, '5 Stars')],
+        choices=[(i, f'{i} Stars') for i in range(1, 6)],
         default=5
     )
     comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-        unique_together = ['farmer', 'product']  # One feedback per farmer per product
-    
-    def __str__(self):
-        return f"{self.farmer.name}'s feedback for {self.product.name}"
+        constraints = [
+            models.UniqueConstraint(fields=['buyer', 'product'], name='unique_feedback')
+        ]

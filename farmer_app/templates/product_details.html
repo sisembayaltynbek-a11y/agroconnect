@@ -128,7 +128,7 @@
         </div>
         
         <div class="product-actions">
-            {% if user.is_authenticated and product.farmer.user != user %}
+            {% if user.is_authenticated and product.farmer.buyer.user != user %}
                 <form method="POST" action="{% url 'toggle-like' product.id %}" class="like-form">
                     {% csrf_token %}
                     <button class="like-btn {% if product in user.seller.liked_products.all %}liked{% endif %}">

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <header>
+        <h1>Choose One To Update</h1>
+    </header>
+    <br><br><br><br><br><br>
+    <div class="nav-links">
+        <a href="{% url 'update-page-buyer' buyer.id %}">Buyer</a>
+        <a href="{% url 'update-page-farmer' farmer.id %}">Farmer</a>
+    </div>
+{% endblock %}
