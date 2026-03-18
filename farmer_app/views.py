@@ -23,6 +23,8 @@ from django.utils.decorators import method_decorator
 from django.views.generic import DeleteView, UpdateView
 from django.db.models import Avg
 
+import base64
+import os
 import random
 import stripe
 import os
@@ -34,7 +36,7 @@ from django.urls import reverse
 
 class Index(View):
     API_KEY = os.getenv('OPENROUTER_API_KEY')
-    ai_model = "google/gemma-3n-e2b-it:free"
+    ai_model = "llama3"
     template_name = "home.html"
 
     def get(self, request):
@@ -99,80 +101,70 @@ class Index(View):
     #         return {"locations": []}
         
     def get_response(self, user_input):
-        client = OpenAI(
-            base_url="https://openrouter.ai/api/v1",
-            api_key=self.API_KEY
-        )
         try:
-            completion = client.chat.completions.create(
-            extra_headers={
-                "HTTP-Referer": "<YOUR_SITE_URL>",
-                "X-Title": "<YOUR_SITE_NAME>",
-            },
-            extra_body={},
-            model=self.ai_model,
-            messages=[
-                {
-                "role": "user",
-                "content": f"""
-                    You are an AI agricultural expert helping farmers in Kazakhstan.
-
-                    User question:
-                    {user_input}
-
-                    Give short practical farming advice.
-                """
-                }
-                ]
+            response = requests.post(
+                "http://localhost:11434/api/chat",
+                json={
+                    "model": self.ai_model,
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": "You are an AI agricultural expert helping farmers in Kazakhstan. Give short practical advice."
+                        },
+                        {
+                            "role": "user",
+                            "content": user_input
+                        }
+                    ],
+                    "stream": False
+                },
+                timeout=60
             )
-            print(completion.choices[0].message.content)
+
+            if response.status_code == 200:
+                return response.json()["message"]["content"]
+            else:
+                print("Ollama error:", response.text)
+                return "AI unavailable"
+
         except Exception as e:
-            print(f"Error getting AI response: {e}")
+            print(e)
             return "try again!"
-                
-        print(completion.choices[0].message.content)
-        return str(completion.choices[0].message.content)
+        
 
 def ai_detector(request, product_id):
     product = get_object_or_404(Products, id=product_id)
-    image_path = request.build_absolute_uri(product.image.url)
-    response = None
-
-    client = OpenAI(
-        base_url="https://openrouter.ai/api/v1",
-        api_key=Index.API_KEY
-    )
+    response_text = None
 
     try:
-        completion = client.chat.completions.create(
-            model=Index.ai_model,
-            max_tokens=300,
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "Analyze this plant image. Identify possible disease and suggest treatment."},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": image_path
-                            }
-                        }
-                    ]
-                }
-            ]
+        image_path = product.image.path
+
+        with open(image_path, "rb") as img:
+            image_base64 = base64.b64encode(img.read()).decode("utf-8")
+
+        response = requests.post(
+            "http://localhost:11434/api/generate",
+            json={
+                "model": "llava",  # 🔥 vision model
+                "prompt": "Analyze this plant image. Identify possible disease and suggest treatment.",
+                "images": [image_base64],
+                "stream": False
+            },
+            timeout=90
         )
 
-        response = completion.choices[0].message.content
+        if response.status_code == 200:
+            response_text = response.json()["response"]
+        else:
+            response_text = "AI error"
 
-    except Exception:
-        response = "Disease detection unavailable"
+    except Exception as e:
+        print(e)
+        response_text = "Disease detection unavailable"
 
     return render(request, "product_details.html", {
         "product": product,
-        "response": response
+        "response": response_text
     })
 
 def category_products(request, id):
@@ -184,21 +176,31 @@ def category_products(request, id):
     })
 
 def ai_price_advisor(request, product_name):
-    client = OpenAI(
-        base_url="https://openrouter.ai/api/v1",
-        api_key=Index.API_KEY
-    )
     try:
-        completion = client.chat.completions.create(
-            model=Index.ai_model,
-            messages=[
-                {
-                    "role": "user",
-                    "content": f"Suggest a reasonable market price for {product_name} in Kazakhstan farm markets. Return only a number in KZT."
-                }
-            ]
+        response = requests.post(
+            "http://localhost:11434/api/chat",
+            json={
+                "model": "llama3",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are an expert in Kazakhstan agricultural markets. Return ONLY a number in KZT."
+                    },
+                    {
+                        "role": "user",
+                        "content": f"Suggest a reasonable market price for {product_name} in Kazakhstan farm markets."
+                    }
+                ],
+                "stream": False
+            },
+            timeout=60
         )
-        suggestion = completion.choices[0].message.content
+
+        if response.status_code == 200:
+            suggestion = response.json()["message"]["content"]
+        else:
+            suggestion = "Unavailable"
+
     except Exception as e:
         print(e)
         suggestion = "Price suggestion unavailable"
@@ -604,7 +606,7 @@ class UpdateBuyer(LoginRequiredMixin, UpdateView):
     model = Buyer
     fields = ['name', 'avatar']
     template_name = 'update_buyer.html'
-    success_url = reverse_lazy('update-page-buyer')  # redirect after success
+    success_url = reverse_lazy('profile')  # redirect after success
 
     def get_object(self):
         buyer = getattr(self.request.user, "buyer", None)
@@ -627,27 +629,36 @@ class UpdateFarmer(LoginRequiredMixin, UpdateView):
             raise Http404("Farmer profile not found")
         return farmer
     
-    def latlng_former(self, location_name): 
-        client = OpenAI( base_url="https://openrouter.ai/api/v1", api_key=Index.API_KEY ) 
-        _isResponse = False
-        try: 
-            completion = client.chat.completions.create( 
-                model=Index.ai_model,
-                messages=[ { 
-                    "role": "user", 
-                    "content": f""" 
-                    Return ONLY valid Text. 
-                    Give the latitude and longitude of the {location_name}. 
-                    only like this without letters and words
-                    Format example: "43.2220,76.8512" 
-                    """ 
-                    } ] 
-                )
-            suggestion = completion.choices[0].message.content.split(',') 
-        except Exception as e: 
-            print(e) 
-            suggestion = "43.2220,76.8512"
-        return suggestion 
+    def latlng_former(self, location_name):
+        try:
+            response = requests.post(
+                "http://localhost:11434/api/chat",
+                json={
+                    "model": "llama3",
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": "Return ONLY coordinates like: 43.2220,76.8512"
+                        },
+                        {
+                            "role": "user",
+                            "content": f"Give latitude and longitude of {location_name}"
+                        }
+                    ],
+                    "stream": False
+                },
+                timeout=60
+            )
+
+            if response.status_code == 200:
+                text = response.json()["message"]["content"]
+                return text.split(",")
+
+            return ["43.2220", "76.8512"]
+
+        except Exception as e:
+            print(e)
+            return ["43.2220", "76.8512"]
     
     def form_valid(self, form):
         response = super().form_valid(form)
