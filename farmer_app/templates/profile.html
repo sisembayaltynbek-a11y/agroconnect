@@ -121,13 +121,16 @@
                     {% endif %}
                 </div>
                 <br><br>
-                {% if farmer %}
+                {% if farmer or delivery %}
                 <a class="edit-profile-btn" href="{% url 'choice' %}">
                     <i class="fas fa-edit"></i> Edit Profile
                 </a><br>
                 {% else %}
                 <a class="edit-profile-btn" href="{% url 'become-farmer' %}">
                     <i class="fas fa-edit"></i> Become A Farmer
+                </a><br>
+                <a class="edit-profile-btn" href="{% url 'become-delivery' %}">
+                    <i class="fas fa-edit"></i> Become A Delivery
                 </a><br>
                 {% endif %}
                 <a href="{% url 'logout' %}" class="edit-profile-btn">

@@ -18,13 +18,13 @@
 
         </div><br>
 
-            <div class="disease-detection">
+            <div class="product-footer">
                 <i class="fas fa-disease"></i>
                 <form action="{% url 'detection' product.id %}" method="get">
                     {% if response %}
                         <p>{{ response }}</p>
                     {% endif %}
-                    <button type="submit">Detect diseases</button>
+                    <button type="submit" class="add-to-cart-btn">Detect diseases</button>
                 </form>
             </div>
 

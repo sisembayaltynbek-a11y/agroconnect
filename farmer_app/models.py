@@ -12,16 +12,8 @@ class Categories(models.Model):
 
     def __str__(self):
         return self.name
-
-class Deliveries(models.Model):
-    fullname = models.CharField(max_length=255)
-    image = models.ImageField(upload_to="delivery_images/", blank=True, null=True)
-    working_stage = models.IntegerField()
-    recommendation = models.TextField()
-
-    def __str__(self):
-        return self.fullname
-
+    
+# User accessibilities to become ...
 class Location(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6)
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
@@ -44,13 +36,40 @@ class Buyer(models.Model):
 
 class Farmer(models.Model):
     buyer = models.OneToOneField(Buyer, on_delete=models.CASCADE)
+    brand = models.CharField()
     phonenumber = models.CharField(max_length=15, blank=True)
     address = models.CharField(max_length=255, blank=True, null=True)
-    location = models.OneToOneField(Location, on_delete=models.CASCADE, null=True, blank=True)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, null=True, blank=True)
     license = models.ImageField(upload_to='licenses/', blank=True, null=True)
 
     def __str__(self):
-        return self.buyer.name
+        return self.brand
+
+class CarDetails(models.Model):
+    carname = models.CharField(max_length=255)
+    carnumber = models.CharField(max_length=10)
+    vehicle_registration = models.ImageField(upload_to='vehicle_registrations/')
+    insurance = models.ImageField(upload_to='insurancies/')
+    medical_certificate = models.ImageField(upload_to='insurancies/')
+    
+    def __str__(self):
+        return self.carnumber
+
+class Deliveries(models.Model):
+    buyer = models.OneToOneField(Buyer, on_delete=models.CASCADE)
+    vehicle = models.OneToOneField(CarDetails, on_delete=models.CASCADE)
+    fullname = models.CharField()
+    image = models.ImageField(upload_to="delivery_images/", blank=True, null=True)
+    STATUS_CHOICES = [
+        (1, 'Beginner'),
+        (2, 'Intermediate'),
+        (3, 'Professional'),
+    ]
+    working_stage = models.IntegerField(choices=STATUS_CHOICES)
+    recommendation = models.TextField()
+
+    def __str__(self):
+        return self.fullname
 
 class Products(models.Model):
     image = models.ImageField(upload_to="products/", null=True, blank=True)
@@ -84,3 +103,9 @@ class Feedback(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['buyer', 'product'], name='unique_feedback')
         ]
+
+class Order(models.Model):
+    buyer = models.ForeignKey(Buyer, on_delete=models.CASCADE)
+    delivery = models.ForeignKey(Deliveries, on_delete=models.SET_NULL, null=True)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)

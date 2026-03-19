@@ -79,31 +79,29 @@
                 <span>{{ product.name }}</span>
             </a>
         {% empty %}
-            <i class="fas fa-leaf"></i>
             <p class="no-products">No products available yet.</p>
         {% endfor %}
     </div><br>
 
     <h1>Staged Deliveries</h1>
     <div class="deliveries-slider">
-        <div class="slider-fade-left"></div>
-        <div class="slider-fade-right"></div>
-        <div class="deliveries">
-            {% for delivery in deliveries %}
-            <div class="delivery-item">
-                {% if delivery.image %}
-                    <img src="{{ delivery.image.url }}" alt="{{ delivery.fullname }}">
-                {% else %}
-                    <div class="image-placeholder">
-                        <i class="fas fa-truck"></i>
-                    </div>
-                {% endif %}
-                <span>{{ delivery.fullname }}</span>
-                <p>Stage: {{ delivery.working_stage }}</p>
-                <p>{{ delivery.recommendation|truncatewords:10 }}</p>
+            <div class="deliveries">
+                {% for delivery in deliveries %}
+                <div class="delivery-item">
+                    {% if delivery.image %}
+                        <img src="{{ delivery.image.url }}" alt="{{ delivery.brand }}">
+                    {% else %}
+                        <div class="image-placeholder">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                    {% endif %}
+                    <span>{{ delivery.brand }}</span>
+                    <p>Stage: {{ delivery.working_stage }}</p>
+                    <p>{{ delivery.recommendation|truncatewords:10 }}</p>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
+
     </div>
     <br>
 

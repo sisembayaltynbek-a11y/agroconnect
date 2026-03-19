@@ -16,8 +16,8 @@ from django.contrib.auth.models import User
 from openai import OpenAI
 import requests
 
-from .models import Buyer, Deliveries, Location, Products, Categories, Farmer, Feedback
-from .forms import AddFarmProduct, BuyerSignUpForm, FarmerSignUpForm
+from .models import Buyer, Deliveries, Location, Order, Products, Categories, Farmer, Feedback, CarDetails
+from .forms import AddFarmProduct, BuyerSignUpForm, FarmerSignUpForm, DeliverySignUpForm
 from django.utils.decorators import method_decorator
 
 from django.views.generic import DeleteView, UpdateView
@@ -27,7 +27,6 @@ import base64
 import os
 import random
 import stripe
-import os
 from django.conf import settings
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
@@ -122,7 +121,8 @@ class Index(View):
             )
 
             if response.status_code == 200:
-                return response.json()["message"]["content"]
+                data = response.json()  
+                return data["message"]["content"]
             else:
                 print("Ollama error:", response.text)
                 return "AI unavailable"
@@ -137,15 +137,25 @@ def ai_detector(request, product_id):
     response_text = None
 
     try:
+        # ✅ Check if image exists
+        if not product.image:
+            response_text = "No image available for this product."
+            return render(request, "product_details.html", {
+                "product": product,
+                "response": response_text
+            })
+
         image_path = product.image.path
 
+        # ✅ Convert image to base64
         with open(image_path, "rb") as img:
             image_base64 = base64.b64encode(img.read()).decode("utf-8")
 
+        # ✅ Call Ollama
         response = requests.post(
             "http://localhost:11434/api/generate",
             json={
-                "model": "llava",  # 🔥 vision model
+                "model": "llava",
                 "prompt": "Analyze this plant image. Identify possible disease and suggest treatment.",
                 "images": [image_base64],
                 "stream": False
@@ -153,13 +163,19 @@ def ai_detector(request, product_id):
             timeout=90
         )
 
+        print("STATUS:", response.status_code)
+        print("RAW:", response.text)
+
         if response.status_code == 200:
-            response_text = response.json()["response"]
+            data = response.json()
+
+            # ✅ Correct parsing for Ollama generate
+            response_text = data.get("response", "No response from AI")
         else:
             response_text = "AI error"
 
     except Exception as e:
-        print(e)
+        print("ERROR:", e)
         response_text = "Disease detection unavailable"
 
     return render(request, "product_details.html", {
@@ -197,7 +213,8 @@ def ai_price_advisor(request, product_name):
         )
 
         if response.status_code == 200:
-            suggestion = response.json()["message"]["content"]
+            data = response.json()
+            return data["message"]["content"]
         else:
             suggestion = "Unavailable"
 
@@ -275,7 +292,19 @@ class BecomeFarmerView(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
 
-        buyer = getattr(self.request.user, "buyer", None)
+        buyer, created = Buyer.objects.get_or_create(user=self.request.user)
+
+        if not buyer:
+            messages.error(self.request, "You need a buyer account first.")
+            return redirect("home")
+
+        if Deliveries.objects.filter(buyer=buyer).exists():
+            messages.error(self.request, "You are already a delivery person.")
+            return redirect("profile")
+
+        if Farmer.objects.filter(buyer=buyer).exists():
+            messages.error(self.request, "You are already a farmer.")
+            return redirect("profile")
 
         latitude = form.cleaned_data.get("latitude")
         longitude = form.cleaned_data.get("longitude")
@@ -289,15 +318,57 @@ class BecomeFarmerView(LoginRequiredMixin, FormView):
 
         Farmer.objects.create(  
             buyer=buyer,
+            brand=buyer.user.username,
             phonenumber=form.cleaned_data["phonenumber"],
             address=form.cleaned_data["address"],
             location=location,
+            license=form.cleaned_data["license"]
         )
 
         messages.success(self.request, "You are now a farmer!")
 
         return redirect(self.success_url)
             
+class BecomeDeliveryView(LoginRequiredMixin, FormView):
+    template_name = "account/become_delivery.html"
+    form_class = DeliverySignUpForm
+    success_url = reverse_lazy("profile")
+
+    def form_valid(self, form):
+        buyer, created = Buyer.objects.get_or_create(user=self.request.user)
+        index = Index()
+
+        if not buyer:
+            messages.error(self.request, "You must create a buyer profile first.")
+            return redirect("home")
+
+        if Farmer.objects.filter(buyer=buyer).exists():
+            messages.error(self.request, "You are already a farmer.")
+            return redirect("profile")
+
+        if Deliveries.objects.filter(buyer=buyer).exists():
+            messages.error(self.request, "You are already a delivery person.")
+            return redirect("profile")
+
+        car = CarDetails.objects.create(
+            carname=form.cleaned_data["carname"],
+            carnumber=form.cleaned_data["carnumber"],
+            vehicle_registration=form.cleaned_data["vehicle_registration"],
+            insurance=form.cleaned_data["insurance"],
+            medical_certificate=form.cleaned_data["medical_certificate"],
+        )
+
+        Deliveries.objects.create(
+            buyer=buyer,
+            vehicle=car,
+            fullname=buyer.user.username,
+            working_stage=form.cleaned_data["working_stage"] or 1,
+            recommendation=index.get_response('give recommendation for delivery')
+        )
+
+        messages.success(self.request, "You are now a delivery driver! 🚚")
+        return redirect(self.success_url)
+
 class Logout(LogoutView):
     template_name = 'account/logout.html'
 
@@ -418,44 +489,113 @@ def add_to_cart(request, product_id):
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
+# @login_required
+# def create_checkout_session(request):
+#     cart = request.session.get('cart', {})
+#     if not cart:
+#         return redirect('cart')
+
+#     available_deliveries = Deliveries.objects.all()
+#     if available_deliveries.exists():
+#         selected_delivery = random.choice(available_deliveries)
+#         request.session['assigned_delivery_id'] = selected_delivery.id
+    
+#     DELIVERY_FEE_KZT = 500 
+    
+#     line_items = []
+    
+#     for pid, item in cart.items():
+#         unit_amount = int(float(item['price']) * 100)
+#         line_items.append({
+#             'price_data': {
+#                 'currency': 'kzt',
+#                 'product_data': {'name': item['name']},
+#                 'unit_amount': unit_amount,
+#             },
+#             'quantity': item['qty'],
+#         })
+
+#     line_items.append({
+#         'price_data': {
+#             'currency': 'kzt',
+#             'product_data': {
+#                 'name': 'Delivery Fee',
+#                 'description': 'Flat rate shipping to your location',
+#             },
+#             'unit_amount': DELIVERY_FEE_KZT * 100,
+#         },
+#         'quantity': 1,
+#     })
+
+#     try:
+#         checkout_session = stripe.checkout.Session.create(
+#             payment_method_types=['card'],
+#             line_items=line_items,
+#             mode='payment',
+#             success_url=request.build_absolute_uri(reverse('payment_success')),
+#             cancel_url=request.build_absolute_uri(reverse('cart')),
+#         )
+#         return redirect(checkout_session.url, code=303)
+#     except Exception as e:
+#         return render(request, 'error.html', {'error': str(e)})
+
 @login_required
 def create_checkout_session(request):
     cart = request.session.get('cart', {})
     if not cart:
         return redirect('cart')
 
+    # Assign a delivery person randomly if available
     available_deliveries = Deliveries.objects.all()
+    selected_delivery = None
     if available_deliveries.exists():
         selected_delivery = random.choice(available_deliveries)
         request.session['assigned_delivery_id'] = selected_delivery.id
-    
-    DELIVERY_FEE_KZT = 500 
-    
+
+    DELIVERY_FEE_KZT = 500  # flat delivery fee
+
     line_items = []
-    
+    subtotal = 0
+
     for pid, item in cart.items():
-        unit_amount = int(float(item['price']) * 100)
+        price = float(item['price'])
+        qty = int(item.get('qty', 1))
+        subtotal += price * qty
+
         line_items.append({
             'price_data': {
                 'currency': 'kzt',
                 'product_data': {'name': item['name']},
-                'unit_amount': unit_amount,
+                'unit_amount': int(price * 100),
             },
-            'quantity': item['qty'],
+            'quantity': qty,
         })
 
+    # Add delivery fee
     line_items.append({
         'price_data': {
             'currency': 'kzt',
             'product_data': {
                 'name': 'Delivery Fee',
-                'description': 'Flat rate shipping to your location',
+                'description': 'Flat rate shipping',
             },
             'unit_amount': DELIVERY_FEE_KZT * 100,
         },
         'quantity': 1,
     })
 
+    total_price = subtotal + DELIVERY_FEE_KZT
+
+    # Save Order in DB
+    buyer = getattr(request.user, "buyer", None)
+    if buyer and selected_delivery:
+        Order.objects.create(
+            buyer=buyer,
+            delivery=selected_delivery,
+            total_price=total_price
+        )
+
+    # Create Stripe session
     try:
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=['card'],
@@ -467,21 +607,32 @@ def create_checkout_session(request):
         return redirect(checkout_session.url, code=303)
     except Exception as e:
         return render(request, 'error.html', {'error': str(e)})
-    
+
 @login_required
 def payment_success(request):
     delivery_id = request.session.get('assigned_delivery_id')
     delivery_person = None
-    
+
     if delivery_id:
-        delivery_person = Deliveries.objects.get(id=delivery_id)
-    
+        try:
+            delivery_person = Deliveries.objects.get(id=delivery_id)
+        except Deliveries.DoesNotExist:
+            delivery_person = None
+
     if 'cart' in request.session:
         del request.session['cart']
-        
-    return render(request, 'success.html', {'delivery_person': delivery_person})
 
-@login_required
+    buyer = getattr(request.user, "buyer", None)
+    latest_order = None
+    if buyer:
+        latest_order = Order.objects.filter(buyer=buyer).order_by('-created_at').first()
+
+    return render(request, 'success.html', {
+        'delivery_person': delivery_person,
+        'order': latest_order
+    })
+
+@login_required 
 @require_POST
 def increase_quantity(request, product_id):
     product = get_object_or_404(Products, id=product_id) 
@@ -547,21 +698,22 @@ def profile(request):
         return render(request, "profile.html", {
             "buyer": None,
             "farmer": None,
+            "delivery": None,
             "products": [],
-            "average_rate": "No data"
+            "orders": [],
         })
-    
+
     farmer = getattr(buyer, "farmer", None)
+    delivery = getattr(buyer, "deliveries", None)
     products = Products.objects.filter(farmer=farmer) if farmer else []
-    average_rate = Feedback.objects.filter(
-        product__farmer=farmer
-    ).aggregate(avg=Avg('rating'))['avg']
+    orders = Order.objects.filter(delivery=delivery) if delivery else []
 
     return render(request, "profile.html", {
         "buyer": buyer,
         "farmer": farmer,
+        "delivery": delivery,
         "products": products,
-        "average_rate": round(average_rate, 1) if average_rate else "No ratings"
+        "orders": orders,
     })
 
 @login_required
@@ -651,8 +803,8 @@ class UpdateFarmer(LoginRequiredMixin, UpdateView):
             )
 
             if response.status_code == 200:
-                text = response.json()["message"]["content"]
-                return text.split(",")
+                data = response.json()
+                return data["message"]["content"].split(",")
 
             return ["43.2220", "76.8512"]
 

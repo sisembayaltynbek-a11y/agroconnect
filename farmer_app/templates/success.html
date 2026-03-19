@@ -6,9 +6,15 @@
     <h1>Payment Successful!</h1>
     <p>Thank you for your purchase. Your order is being processed.</p>
     <p>A confirmation email has been sent to your inbox.</p>
-    {% if delivery_person %}
-        <p>Your delivery agent <strong>{{ delivery_person.fullname }}</strong> is on the way!</p>
-        <p>Recommendation: {{ delivery_person.recommendation }}</p>
+    {% if order %}
+        <h4>Order Summary</h4>
+        <p>Total Paid: {{ order.total_price }} KZT</p>
+        {% if order.delivery %}
+            <p>Delivery Person: {{ order.delivery.fullname }}</p>
+            <p>Car: {{ order.delivery.vehicle.carname }}</p>
+        {% endif %}
+    {% else %}
+        <p>No order info available.</p>
     {% endif %}
     <br>
     <a href="/" class="btn btn-outline-primary">Return to Home</a>

@@ -39,6 +39,7 @@ class BuyerSignUpForm(forms.Form):
 class FarmerSignUpForm(forms.Form):
     phonenumber = forms.CharField(max_length=15, required=False, label="Phone Number")
     address = forms.CharField(required=False)
+    license = forms.ImageField(required=False)
     latitude = forms.FloatField(required=False)
     longitude = forms.FloatField(required=False)
 
@@ -47,10 +48,24 @@ class FarmerSignUpForm(forms.Form):
         lat = cleaned_data.get("latitude")
         lng = cleaned_data.get("longitude")
 
-        if lat and not (-90 <= lat <= 90):
+        if lat is not None and not (-90 <= lat <= 90):
             raise forms.ValidationError("Latitude must be between -90 and 90")
 
-        if lng and not (-180 <= lng <= 180):
+        if lng is not None and not (-180 <= lng <= 180):
             raise forms.ValidationError("Longitude must be between -180 and 180")
 
         return cleaned_data
+
+class DeliverySignUpForm(forms.Form):
+    carname = forms.CharField(max_length=255)
+    carnumber = forms.CharField(max_length=10)
+
+    vehicle_registration = forms.ImageField()
+    insurance = forms.ImageField()
+    medical_certificate = forms.ImageField()
+
+    working_stage = forms.ChoiceField(choices=[
+        (1, 'Beginner'),
+        (2, 'Intermediate'),
+        (3, 'Professional'),
+    ])
