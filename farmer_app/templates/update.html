@@ -26,6 +26,22 @@
                 <button type="submit" class="btn-save">Save</button>
             </form>
         </section>
+{% if delivery %}
+        <section id="update-profile">
+            <header>
+                <h2>Update Delivery Profile</h2>
+                <p>Edit your profile details below and click <strong>Save Changes</strong>.</p>
+            </header>
+
+            <form action="{% url 'update-page-delivery' delivery.pk %}" method="POST" enctype="multipart/form-data" class="update-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <label>Location</label>
+                <input type="text" name="location">
+
+                <button type="submit" class="btn-save">Save</button>
+            </form>
+        </section>
 {% else %}
     <section id="update-product">
         <header>

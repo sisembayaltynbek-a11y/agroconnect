@@ -338,10 +338,6 @@ class BecomeDeliveryView(LoginRequiredMixin, FormView):
         buyer, created = Buyer.objects.get_or_create(user=self.request.user)
         index = Index()
 
-        if not buyer:
-            messages.error(self.request, "You must create a buyer profile first.")
-            return redirect("home")
-
         if Farmer.objects.filter(buyer=buyer).exists():
             messages.error(self.request, "You are already a farmer.")
             return redirect("profile")
@@ -361,8 +357,8 @@ class BecomeDeliveryView(LoginRequiredMixin, FormView):
         Deliveries.objects.create(
             buyer=buyer,
             vehicle=car,
-            fullname=buyer.user.username,
-            working_stage=form.cleaned_data["working_stage"] or 1,
+            fullname=form.cleaned_data["fullname"],
+            working_stage=int(form.cleaned_data["working_stage"]),
             recommendation=index.get_response('give recommendation for delivery')
         )
 
@@ -737,9 +733,11 @@ def delete_self_published(request, product_id):
 def choose_page(request):
     buyer = getattr(request.user, "buyer", None)
     farmer = getattr(buyer, "farmer", None)
+    delivery = getattr(buyer, "deliveries", None)
     return render(request, 'choice.html', {
         'buyer': buyer,
         'farmer': farmer,
+        'delivery':delivery,
     })
 
 class UpdatePost(LoginRequiredMixin, UpdateView):
@@ -750,6 +748,7 @@ class UpdatePost(LoginRequiredMixin, UpdateView):
     def get_queryset(self):
         buyer = getattr(self.request.user, "buyer", None)
         farmer = getattr(buyer, "farmer", None)
+        delivery = getattr(buyer, "deliveries", None)
         if farmer:
             return Products.objects.filter(farmer=farmer)
         return Products.objects.none()
@@ -830,7 +829,40 @@ class UpdateFarmer(LoginRequiredMixin, UpdateView):
                     self.object.location = new_location
                     self.object.save()
         return response
-            
+
+class DeliveryUpdateView(LoginRequiredMixin, UpdateView):
+    model = Deliveries
+    fields = ['fullname', 'working_stage', 'image']
+    template_name = "update_delivery.html"
+    success_url = reverse_lazy('profile')
+
+    def get_object(self, queryset=None):
+        buyer = getattr(self.request.user, "buyer", None)
+        if not buyer:
+            return None
+        delivery = getattr(buyer, "deliveries", None)
+        return delivery
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+
+        car = self.object.vehicle
+        car.carname = self.request.POST.get("carname", car.carname)
+        car.carnumber = self.request.POST.get("carnumber", car.carnumber)
+
+        if "vehicle_registration" in self.request.FILES:
+            car.vehicle_registration = self.request.FILES["vehicle_registration"]
+        if "insurance" in self.request.FILES:
+            car.insurance = self.request.FILES["insurance"]
+        if "medical_certificate" in self.request.FILES:
+            car.medical_certificate = self.request.FILES["medical_certificate"]
+
+        car.save()
+        self.object.save()
+
+        messages.success(self.request, "Delivery profile updated successfully!")
+        return redirect(self.success_url)
+
 def iot_dashboard(request):
     city_name = request.POST.get('city_name', 'Almaty')
     url = f"https://api.openweathermap.org/data/2.5/forecast?q={city_name}&appid=89c57e8dfcd68a00c8b51ce244feff28&units=metric"

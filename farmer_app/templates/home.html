@@ -89,13 +89,13 @@
                 {% for delivery in deliveries %}
                 <div class="delivery-item">
                     {% if delivery.image %}
-                        <img src="{{ delivery.image.url }}" alt="{{ delivery.brand }}">
+                        <img src="{{ delivery.image.url }}" alt="{{ delivery.fullname }}">
                     {% else %}
                         <div class="image-placeholder">
                             <i class="fas fa-truck"></i>
                         </div>
                     {% endif %}
-                    <span>{{ delivery.brand }}</span>
+                    <span>{{ delivery.fullname }}</span>
                     <p>Stage: {{ delivery.working_stage }}</p>
                     <p>{{ delivery.recommendation|truncatewords:10 }}</p>
                 </div>

@@ -58,7 +58,7 @@ class CarDetails(models.Model):
 class Deliveries(models.Model):
     buyer = models.OneToOneField(Buyer, on_delete=models.CASCADE)
     vehicle = models.OneToOneField(CarDetails, on_delete=models.CASCADE)
-    fullname = models.CharField()
+    fullname = models.CharField(max_length=255)
     image = models.ImageField(upload_to="delivery_images/", blank=True, null=True)
     STATUS_CHOICES = [
         (1, 'Beginner'),

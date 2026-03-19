@@ -57,15 +57,18 @@ class FarmerSignUpForm(forms.Form):
         return cleaned_data
 
 class DeliverySignUpForm(forms.Form):
-    carname = forms.CharField(max_length=255)
-    carnumber = forms.CharField(max_length=10)
+    fullname = forms.CharField(max_length=255, label="Full Name")
+    carname = forms.CharField(max_length=255, label="Car Name")
+    carnumber = forms.CharField(max_length=10, label="Car Number")
 
-    vehicle_registration = forms.ImageField()
-    insurance = forms.ImageField()
-    medical_certificate = forms.ImageField()
+    avatar = forms.ImageField(required=False)
+
+    vehicle_registration = forms.ImageField(label="Vehicle Registration")
+    insurance = forms.ImageField(label="Car Insurance")
+    medical_certificate = forms.ImageField(label="Medical Certificate")
 
     working_stage = forms.ChoiceField(choices=[
         (1, 'Beginner'),
         (2, 'Intermediate'),
         (3, 'Professional'),
-    ])
+    ], label='Experience')

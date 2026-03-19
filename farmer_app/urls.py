@@ -35,6 +35,7 @@ urlpatterns = [
     path('posts/update/<int:pk>/', views.UpdatePost.as_view(), name="update-page"),
     path('posts/buyer_update/<int:pk>/', views.UpdateBuyer.as_view(), name="update-page-buyer"),
     path('posts/farmer_update/<int:pk>/', views.UpdateFarmer.as_view(), name="update-page-farmer"),
+    path('posts/delivery_update/<int:pk>/', views.DeliveryUpdateView.as_view(), name="update-page-delivery"),
 
     path('dashboard/', views.iot_dashboard, name='dashboard'),
 

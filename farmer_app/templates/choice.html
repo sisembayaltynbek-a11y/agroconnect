@@ -8,6 +8,10 @@
     <br><br><br><br><br><br>
     <div class="nav-links">
         <a href="{% url 'update-page-buyer' buyer.id %}">Buyer</a>
-        <a href="{% url 'update-page-farmer' farmer.id %}">Farmer</a>
+        {% if farmer %}
+            <a href="{% url 'update-page-farmer' farmer.id %}">Farmer</a>
+        {% else %}
+            <a href="{% url 'update-page-delivery' delivery.id %}">Delivery</a>
+        {% endif %}
     </div>
 {% endblock %}

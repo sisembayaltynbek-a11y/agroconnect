@@ -21,8 +21,20 @@
                         {% endfor %}
                     {% endif %}
 
-                    <form method="post" enctype="multipart/form-data" novalidate>
+                    <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="id_fullname" class="form-label">Full Name</label>
+                            <input type="text" name="fullname" 
+                                class="form-control {% if form.fullname.errors %}is-invalid{% endif %}" 
+                                id="id_fullname"
+                                value="{{ form.fullname.value|default_if_none:'' }}">
+                            
+                            {% for error in form.fullname.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
 
                         <div class="mb-3">
                             <label for="id_carname" class="form-label">Car Name</label>
