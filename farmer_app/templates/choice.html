@@ -7,11 +7,13 @@
     </header>
     <br><br><br><br><br><br>
     <div class="nav-links">
-        <a href="{% url 'update-page-buyer' buyer.id %}">Buyer</a>
+        <a href="{% url 'update-page-buyer' buyer.id %}">Buyer:</a>
+        <pre>Full Name, Avatar.</pre>
         {% if farmer %}
             <a href="{% url 'update-page-farmer' farmer.id %}">Farmer</a>
         {% else %}
             <a href="{% url 'update-page-delivery' delivery.id %}">Delivery</a>
+            <pre>Full Name, Working Stage, Image.</pre>
         {% endif %}
     </div>
 {% endblock %}

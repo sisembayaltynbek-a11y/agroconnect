@@ -1,22 +1,31 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block content %}<br><br><br>
-<div class="container" style="text-align: center; padding: 50px;">
-    <div class="success-icon" style="font-size: 64px; color: #28a745;">✓</div>
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/payment_success.css' %}">
+
+<div class="success-container">
+    <div class="success-icon">✓</div>
+
     <h1>Payment Successful!</h1>
     <p>Thank you for your purchase. Your order is being processed.</p>
     <p>A confirmation email has been sent to your inbox.</p>
+
     {% if order %}
-        <h4>Order Summary</h4>
-        <p>Total Paid: {{ order.total_price }} KZT</p>
-        {% if order.delivery %}
-            <p>Delivery Person: {{ order.delivery.fullname }}</p>
-            <p>Car: {{ order.delivery.vehicle.carname }}</p>
-        {% endif %}
+        <div class="order-summary">
+            <h4>Order Summary</h4>
+            <p><strong>Total Paid:</strong> {{ order.total_price }} KZT</p>
+
+            {% if order.delivery %}
+                <p><strong>Delivery Person:</strong> {{ order.delivery.fullname }}</p>
+                <p><strong>Car:</strong> {{ order.delivery.vehicle.carname }}</p>
+                <p><strong>Car Number:</strong> {{ order.delivery.vehicle.carnumber }}</p>
+            {% endif %}
+        </div>
     {% else %}
         <p>No order info available.</p>
     {% endif %}
-    <br>
-    <a href="/" class="btn btn-outline-primary">Return to Home</a>
+
+    <a href="/" class="success-btn">Return to Home</a>
 </div>
 {% endblock %}

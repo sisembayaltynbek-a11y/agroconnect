@@ -154,7 +154,7 @@
             <h3>Product Details</h3>
             <ul>
                 <li><strong>Category:</strong> {{ product.category.name }}</li>
-                <li><strong>Seller:</strong> {{ product.farmer.name }}</li>
+                <li><strong>Seller:</strong> {{ product.farmer.brand }}</li>
                 <li><strong>Phone:</strong> <a href="tel:{{ product.farmer.phonenumber }}">{{ product.farmer.phonenumber }}</a></li>
                 {% if product.farmer.address %}<li><strong>Location:</strong> {{ product.farmer.address }}</li>{% endif %}
                 <li><strong>Added:</strong> {{ product.created_at|date:"F d, Y" }}</li>

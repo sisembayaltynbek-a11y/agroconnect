@@ -57,7 +57,6 @@ class FarmerSignUpForm(forms.Form):
         return cleaned_data
 
 class DeliverySignUpForm(forms.Form):
-    fullname = forms.CharField(max_length=255, label="Full Name")
     carname = forms.CharField(max_length=255, label="Car Name")
     carnumber = forms.CharField(max_length=10, label="Car Number")
 

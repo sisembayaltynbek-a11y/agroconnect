@@ -43,7 +43,7 @@ class Index(View):
             'categories': Categories.objects.all(),
             'deliveries': Deliveries.objects.filter(working_stage__gte=3),
             'popular_products': Products.objects.all().order_by('-id')[:8],
-            'cheap_products': Products.objects.filter(price__lt=Decimal('700.00'))[:8],
+            'cheap_products': Products.objects.filter(price__lt=Decimal('5000.00'))[:8],
             # 'planting_areas': planting_areas,
             'ai_response': None,
         })
@@ -164,7 +164,6 @@ def ai_detector(request, product_id):
         )
 
         print("STATUS:", response.status_code)
-        print("RAW:", response.text)
 
         if response.status_code == 200:
             data = response.json()
@@ -191,6 +190,9 @@ def category_products(request, id):
         'products': products
     })
 
+from django.http import JsonResponse
+import requests
+
 def ai_price_advisor(request, product_name):
     try:
         response = requests.post(
@@ -214,7 +216,7 @@ def ai_price_advisor(request, product_name):
 
         if response.status_code == 200:
             data = response.json()
-            return data["message"]["content"]
+            suggestion = data["message"]["content"]
         else:
             suggestion = "Unavailable"
 
@@ -357,7 +359,7 @@ class BecomeDeliveryView(LoginRequiredMixin, FormView):
         Deliveries.objects.create(
             buyer=buyer,
             vehicle=car,
-            fullname=form.cleaned_data["fullname"],
+            fullname=buyer.user.username,
             working_stage=int(form.cleaned_data["working_stage"]),
             recommendation=index.get_response('give recommendation for delivery')
         )
