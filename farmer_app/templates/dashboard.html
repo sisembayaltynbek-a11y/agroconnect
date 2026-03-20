@@ -8,7 +8,7 @@
 
     <!-- CITY SELECTION -->
     <div class="search-input-container">
-        <form method="post" action="{% url 'dashboard' %}">
+        <form method="get" action="{% url 'dashboard' %}">
             {% csrf_token %}
             <input type="text" name="city_name" class="input" placeholder="Almaty, Astana, Shymkent & e.g. " value="{{ city }}">
             <button type="submit">Update City</button>
@@ -80,14 +80,7 @@
         <div class="weather-card" style="background: #f8fff8; border: 1px solid #a8e6a8; padding: 12px; margin-top: 20px;">
             <h4 style="margin: 0 0 10px 0; font-size: 1.1rem;">📊 Market Snapshot (March 2026)</h4>
 
-            <form method="post" action="{% url 'dashboard' %}">
-                {% csrf_token %}
-                <input type="hidden" name="form_type" value="city">
-                <input type="text" name="city_name" value="{{ city }}">
-                <button type="submit">Update City</button>
-            </form>
-
-            <form method="post" action="{% url 'dashboard' %}">
+            <form method="get" action="{% url 'dashboard' %}">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="product">
                 <input type="text" name="product" value="{{ product }}">

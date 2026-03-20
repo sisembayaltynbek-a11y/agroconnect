@@ -878,26 +878,11 @@ class DeliveryUpdateView(LoginRequiredMixin, UpdateView):
         return redirect(self.success_url)
 
 def iot_dashboard(request):
-    # ──────────────────────────────
-    # FORM HANDLING (FIXED)
-    # ──────────────────────────────
-    form_type = request.POST.get("form_type")
+    city_name = request.POST.get("city_name") or request.GET.get("city_name") or "Almaty"
+    product_name = request.POST.get("product") or request.GET.get("product") or ""
 
-    if form_type == "city":
-        city_name = request.POST.get("city_name", "Almaty")
-        product_name = ""
-
-    elif form_type == "product":
-        city_name = request.POST.get("city_name", "Almaty")
-        product_name = request.POST.get("product", "").strip()
-
-    else:
-        city_name = "Almaty"
-        product_name = ""
-
-    # ──────────────────────────────
-    # WEATHER
-    # ──────────────────────────────
+    product_name = product_name.strip()
+    
     url = f"https://api.openweathermap.org/data/2.5/forecast?q={city_name}&appid=89c57e8dfcd68a00c8b51ce244feff28&units=metric"
 
     try:
