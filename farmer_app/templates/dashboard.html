@@ -2,15 +2,22 @@
 {% load static %}
 
 {% block content %}
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}"><br><br>
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+
+    <br><br>
+
+    <!-- CITY SELECTION -->
     <div class="search-input-container">
         <form method="post" action="{% url 'dashboard' %}">
             {% csrf_token %}
-            <input type="text" name="city_name" class="input" placeholder="London, Tokyo, New York & e.g. ">
-            <button type="submit">Select</button>
+            <input type="text" name="city_name" class="input" placeholder="Almaty, Astana, Shymkent & e.g. " value="{{ city }}">
+            <button type="submit">Update City</button>
         </form>
     </div>
 
+    <br>
+
+    <!-- WEATHER CONTAINER -->
     <div class="weather-container">
 
         <div class="weather-header">
@@ -37,7 +44,7 @@
 
             <div class="weather-card weather-condition">
                 <h3>☁ Weather</h3>
-                <img src="https://openweathermap.org/img/wn/{{ weather_icon }}@2x.png" class="weather-icon">
+                <img src="https://openweathermap.org/img/wn/{{ weather_icon }}@2x.png" class="weather-icon" alt="Weather icon">
                 <p>Main: <span>{{ weather_main }}</span></p>
                 <p>Description: <span>{{ weather_description }}</span></p>
             </div>
@@ -46,7 +53,7 @@
                 <h3>💨 Wind</h3><br>
                 <p>Speed: <span>{{ wind_speed }} m/s</span></p>
                 <p>Direction: <span>{{ wind_deg }}°</span></p>
-                <p>Gust: <span>{{ wind_gust }}</span></p>
+                <p>Gust: <span>{{ wind_gust|default:"N/A" }}</span></p>
             </div>
 
             <div class="weather-card clouds">
@@ -56,11 +63,95 @@
 
             <div class="weather-card rain">
                 <h3>🌧 Rain</h3>
-                <p>Probability: <span>{{ rain_probability }}</span></p>
+                <p>Probability: <span>{{ rain_probability }}%</span></p>
             </div>
 
         </div><br>
 
+        <!-- AI ADVICE -->
+        <div class="weather-card advice-card">
+            <h3>🌾 AI Agronomy Advice</h3>
+            <p style="white-space: pre-wrap;">{{ advice }}</p>
+        </div>
+
+        <br><br>
+
+        <!-- COMPACT MARKET SECTION (single small chart) -->
+        <div class="weather-card" style="background: #f8fff8; border: 1px solid #a8e6a8; padding: 12px; margin-top: 20px;">
+            <h4 style="margin: 0 0 10px 0; font-size: 1.1rem;">📊 Market Snapshot (March 2026)</h4>
+
+            <form method="post" action="{% url 'dashboard' %}">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="city">
+                <input type="text" name="city_name" value="{{ city }}">
+                <button type="submit">Update City</button>
+            </form>
+
+            <form method="post" action="{% url 'dashboard' %}">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="product">
+                <input type="text" name="product" value="{{ product }}">
+                <button type="submit">Check</button>
+            </form>
+
+            {% if histogram_json %}
+            <div style="background: white; padding: 8px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <p style="text-align: center; font-weight: bold; font-size: 13px; margin: 4px 0 8px;">
+                    {{ product|title|default:"Product" }}
+                </p>
+                <canvas id="priceHist" height="140"></canvas>
+
+                <div style="font-size: 11px; text-align: center; margin-top: 6px;">
+                    Avg: {{ avg_price_kzt|floatformat:0 }} KZT/kg ≈ {{ avg_price_usd }} USD/kg<br>
+                    <span style="
+                        {% if trend|lower == 'rising' %}color:#2e7d32;
+                        {% elif trend|lower == 'falling' %}color:#c62828;
+                        {% else %}color:#616161;
+                        {% endif %}
+                        font-weight:bold;">
+                        {{ trend|default:"unknown"|upper }} ({{ trend_percent|default:"0" }}%)
+                    </span>
+                </div>
+            </div>
+
+            {% if market_analysis %}
+            <div style="margin-top: 10px; font-size: 13px;">
+                <strong>Overview:</strong><br>
+                <small>{{ market_analysis }}</small>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <p style="color: #666; font-size: 13px; text-align: center; margin: 10px 0;">
+                Enter a product name above to see AI-powered price trend & small histogram
+            </p>
+            {% endif %}
+        </div>
+
     </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    {% if histogram_json %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const hist = {{ histogram_json|default:"null"|safe }};
+    if (!hist || !hist.bin_labels) return;
+
+    new Chart(document.getElementById('priceHist'), {
+        type: 'bar',
+        data: {
+            labels: hist.bin_labels,
+            datasets: [{
+                data: hist.bin_counts
+            }]
+        }
+    });
+});
+</script>
+{% endif %}
 
 {% endblock %}

@@ -545,11 +545,21 @@ def create_checkout_session(request):
 
     # Assign a delivery person randomly if available
     available_deliveries = Deliveries.objects.all()
+    buyer = getattr(request.user, "buyer", None)
+    delivery = getattr(buyer, "deliveries", None)
+    listof_deliveries = []
     selected_delivery = None
     if available_deliveries.exists():
-        selected_delivery = random.choice(available_deliveries)
+        for i in available_deliveries:
+            if i !=delivery:
+                listof_deliveries.append(i)
+            else:
+                pass
+    
+    if listof_deliveries:
+        selected_delivery = random.choice(listof_deliveries)
         request.session['assigned_delivery_id'] = selected_delivery.id
-
+    
     DELIVERY_FEE_KZT = 500  # flat delivery fee
 
     line_items = []
@@ -585,7 +595,7 @@ def create_checkout_session(request):
     total_price = subtotal + DELIVERY_FEE_KZT
 
     # Save Order in DB
-    buyer = getattr(request.user, "buyer", None)
+    
     if buyer and selected_delivery:
         Order.objects.create(
             buyer=buyer,
@@ -705,6 +715,7 @@ def profile(request):
     delivery = getattr(buyer, "deliveries", None)
     products = Products.objects.filter(farmer=farmer) if farmer else []
     orders = Order.objects.filter(delivery=delivery) if delivery else []
+    my_orders = Order.objects.filter(delivery=delivery) if delivery else []
 
     return render(request, "profile.html", {
         "buyer": buyer,
@@ -712,6 +723,7 @@ def profile(request):
         "delivery": delivery,
         "products": products,
         "orders": orders,
+        "my_orders":my_orders,
     })
 
 @login_required
@@ -866,37 +878,147 @@ class DeliveryUpdateView(LoginRequiredMixin, UpdateView):
         return redirect(self.success_url)
 
 def iot_dashboard(request):
-    city_name = request.POST.get('city_name', 'Almaty')
+    # ──────────────────────────────
+    # FORM HANDLING (FIXED)
+    # ──────────────────────────────
+    form_type = request.POST.get("form_type")
+
+    if form_type == "city":
+        city_name = request.POST.get("city_name", "Almaty")
+        product_name = ""
+
+    elif form_type == "product":
+        city_name = request.POST.get("city_name", "Almaty")
+        product_name = request.POST.get("product", "").strip()
+
+    else:
+        city_name = "Almaty"
+        product_name = ""
+
+    # ──────────────────────────────
+    # WEATHER
+    # ──────────────────────────────
     url = f"https://api.openweathermap.org/data/2.5/forecast?q={city_name}&appid=89c57e8dfcd68a00c8b51ce244feff28&units=metric"
-    response = requests.get(url)
-    data = response.json()
 
-    forecast = data['list'][0]  # first forecast record
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
 
-    sendings = {
-        "city": city_name,
-        "datetime": forecast['dt_txt'],
+        if "list" not in data or not data["list"]:
+            raise ValueError("No weather data")
 
-        # main weather data
-        "temp": forecast['main']['temp'],
-        "feels_like": forecast['main']['feels_like'],
-        "temp_min": forecast['main']['temp_min'],
-        "temp_max": forecast['main']['temp_max'],
-        "pressure": forecast['main']['pressure'],
-        "humidity": forecast['main']['humidity'],
+        forecast = data["list"][0]
 
-        # weather description
-        "weather_main": forecast['weather'][0]['main'],
-        "weather_description": forecast['weather'][0]['description'],
-        "weather_icon": forecast['weather'][0]['icon'],
+        weather = {
+            "city": city_name,
+            "datetime": forecast.get('dt_txt'),
+            "temp": forecast['main'].get('temp'),
+            "feels_like": forecast['main'].get('feels_like'),
+            "temp_min": forecast['main'].get('temp_min'),
+            "temp_max": forecast['main'].get('temp_max'),
+            "pressure": forecast['main'].get('pressure'),
+            "humidity": forecast['main'].get('humidity'),
+            "weather_main": forecast['weather'][0].get('main'),
+            "weather_description": forecast['weather'][0].get('description'),
+            "weather_icon": forecast['weather'][0].get('icon'),
+            "clouds": forecast.get('clouds', {}).get('all'),
+            "wind_speed": forecast.get('wind', {}).get('speed'),
+            "wind_deg": forecast.get('wind', {}).get('deg'),
+            "wind_gust": forecast.get('wind', {}).get('gust'),
+            "visibility": forecast.get('visibility'),
+            "rain_probability": forecast.get('pop', 0),
+        }
 
-        # extra information
-        "clouds": forecast['clouds']['all'],
-        "wind_speed": forecast['wind']['speed'],
-        "wind_deg": forecast['wind']['deg'],
-        "wind_gust": forecast['wind'].get('gust'),
-        "visibility": forecast['visibility'],
-        "rain_probability": forecast['pop'],
+    except Exception as e:
+        print("Weather error:", e)
+        weather = {"city": city_name}
+
+    # ──────────────────────────────
+    # AGRONOMY ADVICE
+    # ──────────────────────────────
+    advice = "AI advice unavailable."
+
+    if weather.get("temp") and weather.get("humidity"):
+        prompt = f"""
+You are an expert agronomist in Kazakhstan.
+Farmer is near {city_name}.
+Weather: {weather['temp']}°C, {weather['humidity']}% humidity, {weather['weather_description']}.
+Give 3 short practical tips.
+"""
+        try:
+            r = requests.post(
+                "http://localhost:11434/api/chat",
+                json={"model": "llama3", "messages": [{"role": "user", "content": prompt}], "stream": False},
+                timeout=60
+            )
+            data = r.json()
+            advice = data.get("message", {}).get("content", advice)
+
+        except Exception as e:
+            print("Advice error:", e)
+
+    # ──────────────────────────────
+    # MARKET DATA (SAFE)
+    # ──────────────────────────────
+    def get_market_data(prod):
+        if not prod:
+            return None, None, None, None, None, None
+
+        prompt = f"""
+Return ONLY JSON:
+{{
+ "market_analysis":"text",
+ "avg_price_kzt_per_kg": number,
+ "trend":"rising|falling|stable",
+ "trend_percent_last_month": number,
+ "bin_labels":[],
+ "bin_counts":[]
+}}
+Product: {prod} in Kazakhstan (2026)
+"""
+        try:
+            r = requests.post(
+                "http://localhost:11434/api/chat",
+                json={"model": "llama3", "messages": [{"role": "user", "content": prompt}], "stream": False},
+                timeout=60
+            )
+
+            raw = r.json().get("message", {}).get("content", "")
+            d = json.loads(raw)
+
+            hist = json.dumps({
+                "bin_labels": d.get("bin_labels", []),
+                "bin_counts": d.get("bin_counts", [])
+            })
+
+            return (
+                d.get("market_analysis"),
+                d.get("avg_price_kzt_per_kg"),
+                d.get("trend"),
+                d.get("trend_percent_last_month"),
+                hist,
+            )
+
+        except Exception as e:
+            print("Market error:", e)
+            return None, None, None, None, None
+
+    # ONLY ONE CALL (OPTIMIZED)
+    market_analysis = avg_price = trend = trend_percent = histogram = None
+
+    if product_name:
+        market_analysis, avg_price, trend, trend_percent, histogram = get_market_data(product_name)
+
+    context = {
+        **weather,
+        "advice": advice,
+        "product": product_name,
+        "market_analysis": market_analysis,
+        "avg_price_kzt": avg_price,
+        "trend": trend,
+        "trend_percent": trend_percent,
+        "histogram_json": histogram,
     }
 
-    return render(request, "dashboard.html", sendings)
+    return render(request, "dashboard.html", context)

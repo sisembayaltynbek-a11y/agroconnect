@@ -9,7 +9,7 @@
     <div class="profile-header">
         <div class="header-content">
             <h1><i class="fas fa-user-circle"></i> My Profile</h1>
-            <p class="welcome-text">Welcome back, {{ buyer.name }}! Manage your products and profile here.</p>
+            <p class="welcome-text">Welcome back, {{ buyer.user.username }}! Manage your products and profile here.</p>
         </div>
         {% if farmer %}
             <a href="{% url 'add-product' %}" class="add-product-btn">
@@ -17,8 +17,6 @@
             </a>
         {% endif %}
     </div>
-
-```
 <!-- Quick Stats -->
 <div class="quick-stats">
     {% if farmer %}
@@ -129,7 +127,7 @@
                         <div class="info-item">
                             <i class="fas fa-car-alt"></i>
                             <div>
-                                <small>Vehicle</small>
+                                <small>Vehicle Information</small>
                                 <p> <br><small>Car Name</small>{{ delivery.vehicle.carname }}<br><br><small>Car Number</small>{{ delivery.vehicle.carnumber }}</p>
                             </div>
                         </div>
@@ -189,7 +187,7 @@
             {% if farmer %}
                 <h2><i class="fas fa-tractor"></i> My Products</h2>
             {% else %}
-                <h2><i class="fas fa-list"></i> My Orders</h2>
+                <h2><i class="fas fa-list"></i> Customer Orders</h2>
             {% endif %}
             <div class="section-actions">
                 <button class="filter-btn active">All</button>
@@ -276,7 +274,7 @@
                             {% if product.created_at %}
                             <div class="product-meta">
                                 <i class="fas fa-calendar-alt"></i>
-                                <span>Harvested {{ product.created_at }}</span>
+                                <span>Ordered At: {{ product.created_at }}, 3 Days Left</span>
                             </div>
                             {% endif %}
                             
@@ -297,6 +295,50 @@
                 </div>
             {% endif %}
         {% endif %}
+        
+        
+        
+        <div class="section-header" style="margin-top: 3rem;">
+            <h2><i class="fas fa-cart-flatbed "></i> My Orders</h2>
+        </div>
+            {% if orders %}
+                <div class="products-grid">
+                    {% for product in orders %}
+                    <div class="product-card">
+                        
+                        <div class="product-content">
+                            <div class="product-header">
+                                <h3>{{ product.delivery.fullname }}</h3>
+                                <span class="product-price">₸{{ product.total_price }}</span>
+                            </div>
+                            
+                            {% if product.excerpt %}
+                            <p class="product-excerpt">{{ product.excerpt }}</p>
+                            {% endif %}
+                            
+                            {% if product.created_at %}
+                            <div class="product-meta">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Ordered At: {{ product.created_at }}, 3 Days Left</span>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="product-actions">
+                                ...
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <h3>No Orders Yet</h3>
+                    <p>Wait For Your Order!</p>
+                </div>
+            {% endif %}
 
         <!-- Favorites Section -->
         {% if buyer.liked_products.exists %}
