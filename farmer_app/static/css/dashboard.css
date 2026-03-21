@@ -284,3 +284,60 @@
         width: 100%;
     }
 }
+
+/* ===== Chart Cards ===== */
+
+.chart-card {
+    max-width: 450px;        /* controls the width of the card */
+    margin: 30px auto;       /* centers the card horizontally */
+    padding: 1.5rem;
+    border-radius: 16px;
+    background: #f9f9f9;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+.chart-card h3 {
+    font-size: 1rem;
+    color: #2e7d32;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* ===== Canvas size ===== */
+.chart-card canvas {
+    width: 60% !important;  /* full width inside the card */
+    height: 200px !important; /* smaller height for compact look */
+}
+
+/* ===== Different background colors for distinction ===== */
+#weatherChartCard {
+    background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+}
+
+#productChartCard {
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 568px) {
+    .chart-card {
+        max-width: 60%;
+        padding: 0.8rem;
+    }
+    .chart-card h3 {
+        font-size: 1rem;
+    }
+    .chart-card canvas {
+        height: 160px !important;
+    }
+}

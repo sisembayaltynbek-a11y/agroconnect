@@ -15,6 +15,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from openai import OpenAI
 import requests
+import re
 
 from .models import Buyer, Deliveries, Location, Order, Products, Categories, Farmer, Feedback, CarDetails
 from .forms import AddFarmProduct, BuyerSignUpForm, FarmerSignUpForm, DeliverySignUpForm
@@ -880,20 +881,28 @@ class DeliveryUpdateView(LoginRequiredMixin, UpdateView):
 def iot_dashboard(request):
     city_name = request.POST.get("city_name") or request.GET.get("city_name") or "Almaty"
     product_name = request.POST.get("product") or request.GET.get("product") or "Apple"
-
     product_name = product_name.strip()
-    
-    url = f"https://api.openweathermap.org/data/2.5/forecast?q={city_name}&appid=89c57e8dfcd68a00c8b51ce244feff28&units=metric"
+
+    # ──────────────────────────────
+    # WEATHER DATA
+    # ──────────────────────────────
+    weather_labels = []
+    weather_temps = []
+    weather_humidity = []
 
     try:
+        url = f"https://api.openweathermap.org/data/2.5/forecast?q={city_name}&appid=89c57e8dfcd68a00c8b51ce244feff28&units=metric"
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         data = response.json()
 
-        if "list" not in data or not data["list"]:
-            raise ValueError("No weather data")
+        forecast_list = data["list"][:8]  # next 24h
+        forecast = forecast_list[0]
 
-        forecast = data["list"][0]
+        for item in forecast_list:
+            weather_labels.append(item.get("dt_txt")[11:16])  # HH:MM format
+            weather_temps.append(item["main"].get("temp"))
+            weather_humidity.append(item["main"].get("humidity"))
 
         weather = {
             "city": city_name,
@@ -920,90 +929,70 @@ def iot_dashboard(request):
         weather = {"city": city_name}
 
     # ──────────────────────────────
-    # AGRONOMY ADVICE
+    # AI PRODUCT TIPS
     # ──────────────────────────────
     advice = "AI advice unavailable."
-
-    if weather.get("temp") and weather.get("humidity"):
-        prompt = f"""
+    try:
+        prompt_tips = f"""
 You are an expert agronomist in Kazakhstan.
 Farmer is near {city_name}.
-Weather: {weather['temp']}°C, {weather['humidity']}% humidity, {weather['weather_description']}.
-Give 3 short practical tips.
+Product: {product_name}.
+Give 3 short practical tips for the farmer regarding this product.
 """
-        try:
-            r = requests.post(
-                "http://localhost:11434/api/chat",
-                json={"model": "llama3", "messages": [{"role": "user", "content": prompt}], "stream": False},
-                timeout=60
-            )
-            data = r.json()
-            advice = data.get("message", {}).get("content", advice)
+        r = requests.post(
+            "http://localhost:11434/api/chat",
+            json={"model": "llama3", "messages":[{"role":"user","content":prompt_tips}], "stream": False},
+            timeout=60
+        )
+        data = r.json()
+        advice = data.get("message", {}).get("content", advice)
+    except Exception as e:
+        print("AI Tips error:", e)
 
-        except Exception as e:
-            print("Advice error:", e)
+    chart_labels = []
+    chart_prices = []
+    try:
+        # Separate AI prompt just for generating graph numbers
+        prompt_graph = f"""
+You are an agricultural market expert in Kazakhstan.
+Product: {product_name}.
+Location: {city_name}.
+
+Please give 6 predicted numbers (e.g., prices, sales, demand) for this product in the next days.
+Return only numbers separated by commas.
+"""
+        r = requests.post(
+            "http://localhost:11434/api/chat",
+            json={"model":"llama3", "messages":[{"role":"user","content":prompt_graph}], "stream":False},
+            timeout=60
+        )
+        data = r.json()
+        graph_response = data.get("message", {}).get("content", "")
+
+        numbers = re.findall(r'\d+', graph_response)
+        numbers = numbers[:6]  # take first 6 numbers
+        chart_prices = [int(n) for n in numbers]
+        chart_labels = [f"Day {i+1}" for i in range(len(chart_prices))]
+
+    except Exception as e:
+        print("AI Graph error:", e)
 
     # ──────────────────────────────
-    # MARKET DATA (SAFE)
+    # CONTEXT
     # ──────────────────────────────
-    def get_market_data(prod):
-        if not prod:
-            return None, None, None, None, None, None
-
-        prompt = f"""
-Return ONLY JSON:
-{{
- "market_analysis":"text",
- "avg_price_kzt_per_kg": number,
- "trend":"rising|falling|stable",
- "trend_percent_last_month": number,
- "bin_labels":[],
- "bin_counts":[]
-}}
-Product: {prod} in Kazakhstan (2026)
-"""
-        try:
-            r = requests.post(
-                "http://localhost:11434/api/chat",
-                json={"model": "llama3", "messages": [{"role": "user", "content": prompt}], "stream": False},
-                timeout=60
-            )
-
-            raw = r.json().get("message", {}).get("content", "")
-            d = json.loads(raw)
-
-            hist = json.dumps({
-                "bin_labels": d.get("bin_labels", []),
-                "bin_counts": d.get("bin_counts", [])
-            })
-
-            return (
-                d.get("market_analysis"),
-                d.get("avg_price_kzt_per_kg"),
-                d.get("trend"),
-                d.get("trend_percent_last_month"),
-                hist,
-            )
-
-        except Exception as e:
-            print("Market error:", e)
-            return None, None, None, None, None
-
-    # ONLY ONE CALL (OPTIMIZED)
-    market_analysis = avg_price = trend = trend_percent = histogram = None
-
-    if product_name:
-        market_analysis, avg_price, trend, trend_percent, histogram = get_market_data(product_name)
-
     context = {
         **weather,
         "advice": advice,
         "product": product_name,
-        "market_analysis": market_analysis,
-        "avg_price_kzt": avg_price,
-        "trend": trend,
-        "trend_percent": trend_percent,
-        "histogram_json": histogram,
+
+        # WEATHER CHART
+        "weather_chart_labels": weather_labels,
+        "weather_chart_temps": weather_temps,
+        "weather_chart_humidity": weather_humidity,
+
+        # AI PRODUCT CHART
+        "chart_labels": chart_labels,
+        "chart_prices": chart_prices,
     }
 
     return render(request, "dashboard.html", context)

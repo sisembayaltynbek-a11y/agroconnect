@@ -75,71 +75,55 @@
         </div>
 
         <br><br>
-
-        <!-- COMPACT MARKET SECTION (single small chart) -->
-        <div class="weather-card" style="background: #f8fff8; border: 1px solid #a8e6a8; padding: 12px; margin-top: 20px;">
-            <h4 style="margin: 0 0 10px 0; font-size: 1.1rem;">📊 Market Snapshot (March 2026)</h4>
-
+        <div class="search-input-container">
             <form method="get" action="{% url 'dashboard' %}">
                 {% csrf_token %}
-                <input type="hidden" name="form_type" value="product">
-                <input type="text" name="product" value="{{ product }}">
-                <button type="submit">Check</button>
+                <input type="text" name="product" class="input" placeholder="Rice, Wheat, Oranges & e.g. " value="{{ product }}">
+                <button type="submit">Update Product</button>
             </form>
-
-            {% if histogram_json %}
-            <div style="background: white; padding: 8px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <p style="text-align: center; font-weight: bold; font-size: 13px; margin: 4px 0 8px;">
-                    {{ product|title|default:"Product" }}
-                </p>
-                <canvas id="priceHist" height="140"></canvas>
-
-                <div style="font-size: 11px; text-align: center; margin-top: 6px;">
-                    Avg: {{ avg_price_kzt|floatformat:0 }} KZT/kg ≈ {{ avg_price_usd }} USD/kg<br>
-                    <span>
-                        {{ trend|default:"unknown"|upper }} ({{ trend_percent|default:"0" }}%)
-                    </span>
-                </div>
-            </div>
-
-            {% if market_analysis %}
-            <div style="margin-top: 10px; font-size: 13px;">
-                <strong>Overview:</strong><br>
-                <small>{{ market_analysis }}</small>
-            </div>
-            {% endif %}
-
-            {% else %}
-            <p style="color: #666; font-size: 13px; text-align: center; margin: 10px 0;">
-                Enter a product name above to see AI-powered price trend & small histogram
-            </p>
-            {% endif %}
         </div>
 
-    </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <div class="chart-card" id="weatherChartCard">
+            <h3>🌡 Weather Forecast</h3>
+            <canvas id="weatherChart"></canvas>
+            {{ weather_chart_labels|json_script:"weather-labels" }}
+            {{ weather_chart_temps|json_script:"weather-temps" }}
+            {{ weather_chart_humidity|json_script:"weather-humidity" }}
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+            <script>
+            const wLabels = JSON.parse(document.getElementById('weather-labels').textContent);
+            const wTemps = JSON.parse(document.getElementById('weather-temps').textContent);
+            const wHum = JSON.parse(document.getElementById('weather-humidity').textContent);
 
-    {% if histogram_json %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            new Chart(document.getElementById('weatherChart'), {
+                type: 'line',
+                data: {
+                    labels: wLabels,
+                    datasets: [
+                        { label: 'Temperature (°C)', data: wTemps, borderWidth: 2, tension: 0.4 },
+                        { label: 'Humidity (%)', data: wHum, borderWidth: 2, tension: 0.4 }
+                    ]
+                }
+            });
+            </script>
+        </div>
+        
+        <div class="chart-card" id="productChartCard">
+            <h3>📊 {{ product }} Prediction</h3>
+            <canvas id="productChart"></canvas>
+            {{ chart_labels|json_script:"labels-data" }}
+            {{ chart_prices|json_script:"prices-data" }}
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const hist = {{ histogram_json|default:"null"|safe }};
-    if (!hist || !hist.bin_labels) return;
+            <script>
+            const labels = JSON.parse(document.getElementById('labels-data').textContent);
+            const prices = JSON.parse(document.getElementById('prices-data').textContent);
 
-    new Chart(document.getElementById('priceHist'), {
-        type: 'bar',
-        data: {
-            labels: hist.bin_labels,
-            datasets: [{
-                data: hist.bin_counts
-            }]
-        }
-    });
-});
-</script>
-{% endif %}
-
+            new Chart(document.getElementById('productChart'), {
+                type: 'line',
+                data: { labels: labels, datasets: [{ label: 'Predicted Value', data: prices, borderWidth: 3, tension: 0.4 }] }
+            });
+            </script>
+        </div>
+        
 {% endblock %}
