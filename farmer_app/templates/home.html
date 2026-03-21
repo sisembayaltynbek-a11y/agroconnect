@@ -83,6 +83,7 @@
         {% endfor %}
     </div><br>
 
+    {% if deliveries %}
     <h1>Staged Deliveries</h1>
     <div class="deliveries-slider">
             <div class="deliveries">
@@ -104,6 +105,7 @@
 
     </div>
     <br>
+    {% endif %}
 
     <div class="advertisements">
         <a href="https://www.kitkat.com/"><img src="{% static 'images/ki.jpg' %}" alt="Kitkat-advertisement"></a>

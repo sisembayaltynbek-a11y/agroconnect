@@ -96,12 +96,7 @@
 
                 <div style="font-size: 11px; text-align: center; margin-top: 6px;">
                     Avg: {{ avg_price_kzt|floatformat:0 }} KZT/kg ≈ {{ avg_price_usd }} USD/kg<br>
-                    <span style="
-                        {% if trend|lower == 'rising' %}color:#2e7d32;
-                        {% elif trend|lower == 'falling' %}color:#c62828;
-                        {% else %}color:#616161;
-                        {% endif %}
-                        font-weight:bold;">
+                    <span>
                         {{ trend|default:"unknown"|upper }} ({{ trend_percent|default:"0" }}%)
                     </span>
                 </div>

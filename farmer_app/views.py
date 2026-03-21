@@ -879,7 +879,7 @@ class DeliveryUpdateView(LoginRequiredMixin, UpdateView):
 
 def iot_dashboard(request):
     city_name = request.POST.get("city_name") or request.GET.get("city_name") or "Almaty"
-    product_name = request.POST.get("product") or request.GET.get("product") or ""
+    product_name = request.POST.get("product") or request.GET.get("product") or "Apple"
 
     product_name = product_name.strip()
     
