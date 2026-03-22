@@ -315,7 +315,7 @@
 
 /* ===== Canvas size ===== */
 .chart-card canvas {
-    width: 60% !important;  /* full width inside the card */
+    width: 100% !important;  /* full width inside the card */
     height: 200px !important; /* smaller height for compact look */
 }
 
@@ -331,7 +331,7 @@
 /* ===== Responsive ===== */
 @media (max-width: 568px) {
     .chart-card {
-        max-width: 60%;
+        max-width: 100%;
         padding: 0.8rem;
     }
     .chart-card h3 {
