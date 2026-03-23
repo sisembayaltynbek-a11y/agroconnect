@@ -17,7 +17,7 @@ from openai import OpenAI
 import requests
 import re
 
-from .models import Buyer, Deliveries, Location, Order, Products, Categories, Farmer, Feedback, CarDetails
+from .models import Buyer, Deliveries, Location, Order, Products, Categories, Farmer, Feedback, CarDetails, ChatHistory
 from .forms import AddFarmProduct, BuyerSignUpForm, FarmerSignUpForm, DeliverySignUpForm
 from django.utils.decorators import method_decorator
 
@@ -34,74 +34,65 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 
 
+from django.contrib.auth.mixins import LoginRequiredMixin  # optional — see below
+
 class Index(View):
-    API_KEY = os.getenv('OPENROUTER_API_KEY')
     ai_model = "llama3"
     template_name = "home.html"
 
     def get(self, request):
-        return render(request, self.template_name, {
+        user = request.user
+        greeting = f"Сәлем, {user.username if user.is_authenticated else 'Қонақ'}!"
+
+        context = {
+            'greeting': greeting,
+            'personal_tip': "Бүгін Алматы маңында арзан көкөністер көп — бағаларды тексеріңіз!",  # fallback or cache later
             'categories': Categories.objects.all(),
             'deliveries': Deliveries.objects.filter(working_stage__gte=3),
             'popular_products': Products.objects.all().order_by('-id')[:8],
             'cheap_products': Products.objects.filter(price__lt=Decimal('5000.00'))[:8],
-            # 'planting_areas': planting_areas,
             'ai_response': None,
-        })
-    
+        }
+        return render(request, self.template_name, context)
+
     def post(self, request):
-        user_input = request.POST.get("user_input", "")
-        # planting_areas = self.ai_best_planting()
-        
-        return render(request, self.template_name, {
+        user_input = request.POST.get("user_input", "").strip()
+        user = request.user
+
+        greeting = f"Сәлем, {user.username if user.is_authenticated else 'Қонақ'}!"
+
+        # Optional: only generate tip if user is logged in
+        personal_tip = "AI кеңесі қолжетімсіз"
+        if user.is_authenticated:
+            # You can make this more personal later (e.g. include city, likes)
+            tip_prompt = (
+                f"User is from Almaty, Kazakhstan. "
+                f"Give one short, practical sentence about cheap/seasonal products "
+                f"they can buy today in their region. "
+                f"Example: Алматы маңында бүгін алма өніміне сұраныс жоғары — бағаны тексеріңіз!"
+            )
+            personal_tip = self.get_response(tip_prompt)
+
+        ai_response = None
+        if user_input:
+            ai_response = self.get_response(user_input)
+
+        context = {
+            'greeting': greeting,
+            'personal_tip': personal_tip,
             'categories': Categories.objects.all(),
             'deliveries': Deliveries.objects.filter(working_stage__gte=3),
             'popular_products': Products.objects.all().order_by('-id')[:8],
-            'cheap_products': Products.objects.filter(price__lt=Decimal('500.00'))[:8],
-            # 'planting_areas': planting_areas,
-            'ai_response': self.get_response(user_input),
-            'user_input': user_input
-        })
+            'cheap_products': Products.objects.filter(price__lt=Decimal('5000.00'))[:8],
+            'ai_response': ai_response,
+            'user_input': user_input,
+        }
+        return render(request, self.template_name, context)
 
-    # def ai_best_planting(self):
-    #     client = OpenAI(
-    #         base_url="https://openrouter.ai/api/v1",
-    #         api_key=self.API_KEY
-    #     )
-
-    #     try:
-    #         completion = client.chat.completions.create(
-    #             model="deepseek/deepseek-r1-distill-qwen-32b",
-    #             messages=[
-    #                 {
-    #                     "role": "user",
-    #                     "content": """
-    #                     Return ONLY valid JSON.
-
-    #                     Give the best 10 planting areas in Kazakhstan today.
-
-    #                     Format example:
-    #                     {
-    #                     "locations":[
-    #                         {"lat":43.2220,"lng":76.8512},
-    #                         {"lat":42.9000,"lng":71.3667}
-    #                     ]
-    #                     }
-    #                     """
-    #                 }
-    #             ]
-    #         )
-
-    #         result = completion.choices[0].message.content
-
-    #         return json.loads(result)
-
-    #     except Exception as e:
-    #         print(e)
-    #         return {"locations": []}
-        
     def get_response(self, user_input):
         try:
+            buyer = getattr(self.request.user, "buyer", None) if self.request.user.is_authenticated else None
+
             response = requests.post(
                 "http://localhost:11434/api/chat",
                 json={
@@ -109,12 +100,12 @@ class Index(View):
                     "messages": [
                         {
                             "role": "system",
-                            "content": "You are an AI agricultural expert helping farmers in Kazakhstan. Give short practical advice."
+                            "content": (
+                                "You are AgriConnect AI — practical agricultural expert for Kazakhstan. "
+                                "Answer with real facts and don't lie."
+                            )
                         },
-                        {
-                            "role": "user",
-                            "content": user_input
-                        }
+                        {"role": "user", "content": user_input}
                     ],
                     "stream": False
                 },
@@ -122,15 +113,22 @@ class Index(View):
             )
 
             if response.status_code == 200:
-                data = response.json()  
-                return data["message"]["content"]
+                data = response.json()
+                content = data["message"]["content"]
+                if buyer:
+                    ChatHistory.objects.create(
+                        buyer=buyer,
+                        prompt=user_input,
+                        result=content,
+                    )
+                return content
             else:
                 print("Ollama error:", response.text)
-                return "AI unavailable"
+                return "AI қазір қолжетімсіз"
 
         except Exception as e:
-            print(e)
-            return "try again!"
+            print("Error in get_response:", e)
+            return "Қателік шықты, қайта көріңіз"
         
 
 def ai_detector(request, product_id):
@@ -714,6 +712,7 @@ def profile(request):
 
     farmer = getattr(buyer, "farmer", None)
     delivery = getattr(buyer, "deliveries", None)
+    history = ChatHistory.objects.filter(buyer=buyer).order_by('-time')[:4]
     products = Products.objects.filter(farmer=farmer) if farmer else []
     orders = Order.objects.filter(delivery=delivery) if delivery else []
     my_orders = Order.objects.filter(delivery=delivery) if delivery else []
@@ -722,6 +721,7 @@ def profile(request):
         "buyer": buyer,
         "farmer": farmer,
         "delivery": delivery,
+        "history":history,
         "products": products,
         "orders": orders,
         "my_orders":my_orders,

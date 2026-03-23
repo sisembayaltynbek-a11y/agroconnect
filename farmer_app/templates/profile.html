@@ -154,29 +154,36 @@
 
         <!-- Recent Activity -->
         <div class="activity-card">
-            <h3><i class="fas fa-history"></i> Recent Activity</h3>
+            <h3><i class="fas fa-history"></i> Chat History</h3>
             <div class="activity-list">
-                <div class="activity-item">
-                    <i class="fas fa-box activity-icon"></i>
-                    <div>
-                        <p>Added new product</p>
-                        <small>Today, 10:30 AM</small>
+                {% if history %}
+                    {% for i in history %}
+                        <div class="activity-item">
+                            <i class="fas fa-robot"></i>
+                            <div>
+                                <p>{{ i.prompt }}</p>
+                                <small>{{i.time}}</small>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    
+                    <div class="activity-item">
+                        <i class="fas fa-heart activity-icon"></i>
+                        <div>
+                            <p>Added to favorites</p>
+                            <small>Yesterday, 3:45 PM</small>
+                        </div>
                     </div>
-                </div>
-                <div class="activity-item">
-                    <i class="fas fa-heart activity-icon"></i>
-                    <div>
-                        <p>Added to favorites</p>
-                        <small>Yesterday, 3:45 PM</small>
+                    <div class="activity-item">
+                        <i class="fas fa-comment activity-icon"></i>
+                        <div>
+                            <p>Left a review</p>
+                            <small>2 days ago</small>
+                        </div>
                     </div>
-                </div>
-                <div class="activity-item">
-                    <i class="fas fa-comment activity-icon"></i>
-                    <div>
-                        <p>Left a review</p>
-                        <small>2 days ago</small>
-                    </div>
-                </div>
+                    
+                {% endif %}
             </div>
         </div>
     </div>

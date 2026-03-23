@@ -112,3 +112,12 @@ class Order(models.Model):
 
     def __str__(self):
         return f"{self.buyer.user.username} ordered, delivery name{self.delivery.fullname}"
+
+class ChatHistory(models.Model):
+    buyer = models.ForeignKey(Buyer, on_delete=models.CASCADE)
+    prompt = models.CharField()
+    result = models.TextField()
+    time = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.buyer.user.username} - {self.time}"

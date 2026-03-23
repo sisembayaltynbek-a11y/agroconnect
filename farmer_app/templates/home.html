@@ -7,14 +7,23 @@
 
 {% block content %}
     <div class="hero-section">
-        <h1>
-            Connecting AgroProducts to Families
-        </h1>
-        <p class="tagline">
-            Buy directly from local farmers and support your community. Fresh
-            produce, fair prices, and seamless delivery - bringing the farm to your
-            doorstep.
-        </p>
+        {% if user.is_authenticated %}
+            <h1>
+                {{greeting}}
+            </h1>
+            <p class="tagline">
+                {{personal_tip}}
+            </p>
+        {% else %}
+            <h1>
+                Connecting AgroProducts to Families
+            </h1>
+            <p class="tagline">
+                Buy directly from local farmers and support your community. Fresh
+                produce, fair prices, and seamless delivery - bringing the farm to your
+                doorstep.
+            </p>
+        {% endif %}
     </div>
 
     <!-- Add this to your home.html, after the hero section -->
