@@ -1,96 +1,104 @@
-{% extends "base.html" %}
 {% load static %}
-{% block title %}Become a Delivery Driver{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/signup.css' %}">
+{% endblock %}
 {% block content %}
+{% block page_title %}<title>Become a Delivery Driver</title>{% endblock %}
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Become a Delivery Driver</h4>
-                </div>
-                <div class="card-body">
-                    
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-
-                        <div class="mb-3">
-                            <label for="id_fullname" class="form-label">Full Name</label>
-                            <input type="text" name="fullname" 
-                                class="form-control {% if form.fullname.errors %}is-invalid{% endif %}" 
-                                id="id_fullname"
-                                value="{{ form.fullname.value|default_if_none:'' }}">
-                            
-                            {% for error in form.fullname.errors %}
-                                <div class="invalid-feedback">{{ error }}</div>
+            <div class="auth-card">
+                <div class="card shadow-sm">
+                    <h1>Become a Delivery</h1>
+                    <p class="desc">
+                        Join our community in just a few simple steps
+                    </p>
+                    <div class="card-body">
+                        
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
                             {% endfor %}
-                        </div>
+                        {% endif %}
 
-                        <div class="mb-3">
-                            <label for="id_carname" class="form-label">Car Name</label>
-                            <input type="text" name="carname" class="form-control {% if form.carname.errors %}is-invalid{% endif %}" id="id_carname" value="{{ form.carname.value|default_if_none:'' }}">
-                            {% for error in form.carname.errors %}
-                                <div class="invalid-feedback">{{ error }}</div>
-                            {% endfor %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_carnumber" class="form-label">Car Number</label>
-                            <input type="text" name="carnumber" class="form-control {% if form.carnumber.errors %}is-invalid{% endif %}" id="id_carnumber" value="{{ form.carnumber.value|default_if_none:'' }}">
-                            {% for error in form.carnumber.errors %}
-                                <div class="invalid-feedback">{{ error }}</div>
-                            {% endfor %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_vehicle_registration" class="form-label">Vehicle Registration</label>
-                            <input type="file" name="vehicle_registration" class="form-control {% if form.vehicle_registration.errors %}is-invalid{% endif %}" id="id_vehicle_registration">
-                            {% for error in form.vehicle_registration.errors %}
-                                <div class="invalid-feedback">{{ error }}</div>
-                            {% endfor %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_insurance" class="form-label">Insurance</label>
-                            <input type="file" name="insurance" class="form-control {% if form.insurance.errors %}is-invalid{% endif %}" id="id_insurance">
-                            {% for error in form.insurance.errors %}
-                                <div class="invalid-feedback">{{ error }}</div>
-                            {% endfor %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_medical_certificate" class="form-label">Medical Certificate</label>
-                            <input type="file" name="medical_certificate" class="form-control {% if form.medical_certificate.errors %}is-invalid{% endif %}" id="id_medical_certificate">
-                            {% for error in form.medical_certificate.errors %}
-                                <div class="invalid-feedback">{{ error }}</div>
-                            {% endfor %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_working_stage" class="form-label">Working Stage</label>
-                            <select name="working_stage" class="form-select {% if form.working_stage.errors %}is-invalid{% endif %}" id="id_working_stage">
-                                {% for value, label in form.fields.working_stage.choices %}
-                                    <option value="{{ value }}" {% if form.working_stage.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {{form.as_p}}
+                            <!-- <div class="mb-3">
+                                <label for="id_fullname" class="form-label">Full Name</label>
+                                <input type="text" name="fullname" 
+                                    class="form-control {% if form.fullname.errors %}is-invalid{% endif %}" 
+                                    id="id_fullname"
+                                    value="{{ form.fullname.value|default_if_none:'' }}">
+                                
+                                {% for error in form.fullname.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
                                 {% endfor %}
-                            </select>
-                            {% for error in form.working_stage.errors %}
-                                <div class="invalid-feedback">{{ error }}</div>
-                            {% endfor %}
-                        </div>
+                            </div>
 
-                        <button type="submit" class="btn btn-success w-100">Register as Delivery Driver 🚚</button>
-                    </form>
+                            <div class="mb-3">
+                                <label for="id_carname" class="form-label">Car Name</label>
+                                <input type="text" name="carname" class="form-control {% if form.carname.errors %}is-invalid{% endif %}" id="id_carname" value="{{ form.carname.value|default_if_none:'' }}">
+                                {% for error in form.carname.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
 
+                            <div class="mb-3">
+                                <label for="id_carnumber" class="form-label">Car Number</label>
+                                <input type="text" name="carnumber" class="form-control {% if form.carnumber.errors %}is-invalid{% endif %}" id="id_carnumber" value="{{ form.carnumber.value|default_if_none:'' }}">
+                                {% for error in form.carnumber.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_vehicle_registration" class="form-label">Vehicle Registration</label>
+                                <input type="file" name="vehicle_registration" class="form-control {% if form.vehicle_registration.errors %}is-invalid{% endif %}" id="id_vehicle_registration">
+                                {% for error in form.vehicle_registration.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_insurance" class="form-label">Insurance</label>
+                                <input type="file" name="insurance" class="form-control {% if form.insurance.errors %}is-invalid{% endif %}" id="id_insurance">
+                                {% for error in form.insurance.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_medical_certificate" class="form-label">Medical Certificate</label>
+                                <input type="file" name="medical_certificate" class="form-control {% if form.medical_certificate.errors %}is-invalid{% endif %}" id="id_medical_certificate">
+                                {% for error in form.medical_certificate.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_working_stage" class="form-label">Working Stage</label>
+                                <select name="working_stage" class="form-select {% if form.working_stage.errors %}is-invalid{% endif %}" id="id_working_stage">
+                                    {% for value, label in form.fields.working_stage.choices %}
+                                        <option value="{{ value }}" {% if form.working_stage.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                {% for error in form.working_stage.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div> -->
+
+                            <button type="submit" class="primary-btn">Register as Delivery Driver 🚚</button>
+                        </form>
+                        <p class="switch">
+                            Go Back?
+                            <a href="{% url 'profile' %}">Profile</a>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
