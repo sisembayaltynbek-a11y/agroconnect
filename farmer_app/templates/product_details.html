@@ -157,7 +157,7 @@
                 <li><strong>Seller:</strong> {{ product.farmer.brand }}</li>
                 <li><strong>Phone:</strong> <a href="tel:{{ product.farmer.phonenumber }}">{{ product.farmer.phonenumber }}</a></li>
                 {% if product.farmer.address %}<li><strong>Location:</strong> {{ product.farmer.address }}</li>{% endif %}
-                <li><strong>Added:</strong> {{ product.created_at|date:"F d, Y" }}</li>
+                <li><strong>Added:</strong> {{ product.harvest_date|date:"F d, Y" }}</li>
             </ul>
         </div>
 

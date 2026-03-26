@@ -808,7 +808,7 @@ class UpdateFarmer(LoginRequiredMixin, UpdateView):
                         },
                         {
                             "role": "user",
-                            "content": f"Give latitude and longitude of {location_name}"
+                            "content": f"Give only latitude and longitude without words for this location: {location_name}"
                         }
                     ],
                     "stream": False

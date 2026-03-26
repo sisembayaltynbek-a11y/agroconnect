@@ -10,51 +10,51 @@
 {% endblock %}
 
 {% block content %}
-{% if farmer %}
-        <section id="update-profile">
+    {% if farmer %}
+            <section id="update-profile">
+                <header>
+                    <h2>Update Farmer Profile</h2>
+                    <p>Edit your profile details below and click <strong>Save Changes</strong>.</p>
+                </header>
+
+                <form action="{% url 'update-page-farmer' farmer.pk %}" method="POST" enctype="multipart/form-data" class="update-form">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <label>Location</label>
+                    <input type="text" name="location">
+
+                    <button type="submit" class="btn-save">Save</button>
+                </form>
+            </section>
+    {% elif delivery %}
+            <section id="update-profile">
+                <header>
+                    <h2>Update Delivery Profile</h2>
+                    <p>Edit your profile details below and click <strong>Save Changes</strong>.</p>
+                </header>
+
+                <form action="{% url 'update-page-delivery' delivery.pk %}" method="POST" enctype="multipart/form-data" class="update-form">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <label>Location</label>
+                    <input type="text" name="location">
+
+                    <button type="submit" class="btn-save">Save</button>
+                </form>
+            </section>
+    {% else %}
+        <section id="update-product">
             <header>
-                <h2>Update Farmer Profile</h2>
-                <p>Edit your profile details below and click <strong>Save Changes</strong>.</p>
+                <h2>Update Product</h2>
+                <p>Edit your product details below and click <strong>Save Changes</strong>.</p>
             </header>
 
-            <form action="{% url 'update-page-farmer' farmer.pk %}" method="POST" enctype="multipart/form-data" class="update-form">
+            <form method="POST" enctype="multipart/form-data" class="update-form">
                 {% csrf_token %}
                 {{ form.as_p }}
-                <label>Location</label>
-                <input type="text" name="location">
 
-                <button type="submit" class="btn-save">Save</button>
+                <button type="submit" class="btn-save">Commit</button>
             </form>
         </section>
-{% if delivery %}
-        <section id="update-profile">
-            <header>
-                <h2>Update Delivery Profile</h2>
-                <p>Edit your profile details below and click <strong>Save Changes</strong>.</p>
-            </header>
-
-            <form action="{% url 'update-page-delivery' delivery.pk %}" method="POST" enctype="multipart/form-data" class="update-form">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <label>Location</label>
-                <input type="text" name="location">
-
-                <button type="submit" class="btn-save">Save</button>
-            </form>
-        </section>
-{% else %}
-    <section id="update-product">
-        <header>
-            <h2>Update Product</h2>
-            <p>Edit your product details below and click <strong>Save Changes</strong>.</p>
-        </header>
-
-        <form method="POST" enctype="multipart/form-data" class="update-form">
-            {% csrf_token %}
-            {{ form.as_p }}
-
-            <button type="submit" class="btn-save">Commit</button>
-        </form>
-    </section>
-{% endif %}
+    {% endif %}
 {% endblock %}
