@@ -288,7 +288,7 @@
 /* ===== Chart Cards ===== */
 
 .chart-card {
-    max-width: 650px;        /* controls the width of the card */
+    max-width: 550px;        /* controls the width of the card */
     margin: 30px auto;       /* centers the card horizontally */
     padding: 1.5rem;
     border-radius: 16px;
